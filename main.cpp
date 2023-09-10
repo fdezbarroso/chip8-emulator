@@ -23,6 +23,7 @@ public:
     }
 };
 
+// Loads the font into memory, starting at address 0x050 and finishing at 0x09F
 void load_font();
 
 std::array<std::uint8_t, 16> registers{};
@@ -61,11 +62,12 @@ std::array<uint8_t, 80> font{
 main()
 {
     load_font();
+
     return 0;
 }
 
 void load_font()
 {
-    for (int i{0x050}; i < 0x09F; i++)
+    for (int i{0x050}; i <= 0x09F; i++)
         memory.at(i) = font.at(i - 0x050);
 }
