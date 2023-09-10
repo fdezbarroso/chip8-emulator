@@ -35,4 +35,5 @@
 .vscode/
 
 #ROMs
+ROMs/
 *.ch8
