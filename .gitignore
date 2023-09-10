@@ -33,3 +33,6 @@
 
 # Editor
 .vscode/
+
+#ROMs
+*.ch8
