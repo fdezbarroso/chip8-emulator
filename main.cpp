@@ -2,6 +2,7 @@
 #include <array>
 #include <stack>
 #include <iostream>
+#include <fstream>
 
 template <typename T, std::size_t S>
 class limited_stack : public std::stack<T>
@@ -25,6 +26,11 @@ public:
 
 // Loads the font into memory, starting at address 0x050 and finishing at 0x09F
 void load_font();
+// Loads the .ch8 ROM file's contents into memory when given a path to it
+void load_ROM(const char *rom_path);
+
+const char *ROM_LOCATION{"ROMs\\logo.ch8"};
+const unsigned int START_ADDRESS{0x200};
 
 std::array<std::uint8_t, 16> registers{};
 std::array<std::uint8_t, 4096> memory{};
@@ -62,12 +68,37 @@ std::array<uint8_t, 80> font{
 main()
 {
     load_font();
+    load_ROM(ROM_LOCATION);
+
+    pc = START_ADDRESS;
 
     return 0;
 }
 
 void load_font()
 {
-    for (int i{0x050}; i <= 0x09F; i++)
+    for (unsigned int i{0x050}; i <= 0x09F; i++)
         memory.at(i) = font.at(i - 0x050);
+}
+
+void load_ROM(const char *rom_path)
+{
+    std::ifstream rom_file(rom_path, std::ios::binary);
+
+    if (rom_file.is_open())
+    {
+        // Obtain ROM's contents size
+        rom_file.seekg(0, rom_file.end);
+        std::streampos rom_size{rom_file.tellg()};
+        rom_file.seekg(0, rom_file.beg);
+
+        // Cast needed for std::uint8_t* -> char*
+        rom_file.read(reinterpret_cast<char *>(&memory.at(0x200)), rom_size);
+
+        rom_file.close();
+    }
+    else
+    {
+        std::cerr << "Failed to open the file at path: " << rom_path << std::endl;
+    }
 }
