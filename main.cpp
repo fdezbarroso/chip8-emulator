@@ -32,21 +32,7 @@ void load_ROM(const char *rom_path);
 const char *ROM_LOCATION{"ROMs\\logo.ch8"};
 const unsigned int START_ADDRESS{0x200};
 
-std::array<std::uint8_t, 16> registers{};
-std::array<std::uint8_t, 4096> memory{};
-std::uint16_t index_register{};
-
-std::uint16_t pc{};
-limited_stack<std::uint16_t, 16> stack{};
-std::uint8_t sp{};
-
-std::uint8_t delay_timer{};
-std::uint8_t sound_timer{};
-
-std::array<std::uint8_t, 16> keys{};
-std::array<std::uint32_t, 64 * 32> display{};
-
-std::array<uint8_t, 80> font{
+const std::array<uint8_t, 80> font{
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -64,6 +50,20 @@ std::array<uint8_t, 80> font{
     0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
+
+std::array<std::uint8_t, 16> registers{};
+std::array<std::uint8_t, 4096> memory{};
+std::uint16_t index_register{};
+
+std::uint16_t pc{};
+limited_stack<std::uint16_t, 16> stack{};
+std::uint8_t sp{};
+
+std::uint8_t delay_timer{};
+std::uint8_t sound_timer{};
+
+std::array<std::uint8_t, 16> keys{};
+std::array<std::uint32_t, 64 * 32> display{};
 
 main()
 {
