@@ -1,8 +1,10 @@
 #include <cstdint>
 #include <array>
 #include <stack>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+
+#include <SDL2/SDL.h>
 
 template <typename T, std::size_t S>
 class limited_stack : public std::stack<T>
@@ -29,7 +31,7 @@ void load_font();
 // Loads the .ch8 ROM file's contents into memory when given a path to it
 void load_ROM(const char *rom_path);
 
-const char *ROM_LOCATION{"ROMs\\logo.ch8"};
+const char *ROM_LOCATION{"ROMs/logo.ch8"};
 const unsigned int START_ADDRESS{0x200};
 
 const std::array<uint8_t, 80> font{
@@ -65,12 +67,23 @@ std::uint8_t sound_timer{};
 std::array<std::uint8_t, 16> keys{};
 std::array<std::uint32_t, 64 * 32> display{};
 
-main()
+int main(int argc, char *argv[])
 {
     load_font();
     load_ROM(ROM_LOCATION);
 
     pc = START_ADDRESS;
+
+    // TODO: Change to actual emulation loop
+    for (int i{0x200}; i < 4096; i++)
+    {
+    }
+
+    std::cout << SDL_Init(SDL_INIT_VIDEO) << std::endl;
+
+    SDL_Quit();
+
+    std::cout << "Emulator terminated" << std::endl;
 
     return 0;
 }
