@@ -34,6 +34,9 @@
 # Editor
 .vscode/
 
+# Libraries
+SDL2/
+
 #ROMs
 ROMs/
 *.ch8
