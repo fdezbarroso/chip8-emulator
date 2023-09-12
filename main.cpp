@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <cstdint>
 #include <array>
 #include <stack>
@@ -88,6 +89,7 @@ int main(int argc, char *argv[])
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+        std::exit(EXIT_FAILURE);
     }
     else
     {
@@ -95,7 +97,8 @@ int main(int argc, char *argv[])
 
         if (window == NULL)
         {
-            std::cout << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+            std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+            std::exit(EXIT_FAILURE);
         }
         else
         {
@@ -120,7 +123,7 @@ int main(int argc, char *argv[])
 
     std::cout << "Emulator terminated" << std::endl;
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 void load_font()
@@ -148,5 +151,6 @@ void load_ROM(const char *rom_path)
     else
     {
         std::cerr << "Failed to open the file at path: " << rom_path << std::endl;
+        std::exit(EXIT_FAILURE);
     }
 }
