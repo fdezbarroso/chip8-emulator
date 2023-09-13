@@ -30,7 +30,7 @@ public:
 // Loads the font into memory, starting at address 0x050 and finishing at 0x09F
 void load_font();
 // Loads the .ch8 ROM file's contents into memory when given a path to it
-void load_ROM(const char *rom_path);
+bool load_ROM(const char *rom_path);
 
 const char *ROM_LOCATION{"ROMs/logo.ch8"};
 const unsigned int START_ADDRESS{0x200};
@@ -74,7 +74,10 @@ std::array<std::uint32_t, 64 * 32> display{};
 int main(int argc, char *argv[])
 {
     load_font();
-    load_ROM(ROM_LOCATION);
+    if (!load_ROM(ROM_LOCATION))
+    {
+        return EXIT_FAILURE;
+    }
 
     pc = START_ADDRESS;
 
@@ -89,7 +92,7 @@ int main(int argc, char *argv[])
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
     {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
-        std::exit(EXIT_FAILURE);
+        return EXIT_FAILURE;
     }
     else
     {
@@ -98,7 +101,7 @@ int main(int argc, char *argv[])
         if (window == NULL)
         {
             std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
-            std::exit(EXIT_FAILURE);
+            return EXIT_FAILURE;
         }
         else
         {
@@ -132,25 +135,34 @@ void load_font()
         memory.at(i) = font.at(i - 0x050);
 }
 
-void load_ROM(const char *rom_path)
+bool load_ROM(const char *rom_path)
 {
     std::ifstream rom_file(rom_path, std::ios::binary);
 
-    if (rom_file.is_open())
-    {
-        // Obtain ROM's contents size
-        rom_file.seekg(0, rom_file.end);
-        std::streampos rom_size{rom_file.tellg()};
-        rom_file.seekg(0, rom_file.beg);
-
-        // Cast needed for std::uint8_t* -> char*
-        rom_file.read(reinterpret_cast<char *>(&memory.at(0x200)), rom_size);
-
-        rom_file.close();
-    }
-    else
+    if (!rom_file)
     {
         std::cerr << "Failed to open the file at path: " << rom_path << std::endl;
-        std::exit(EXIT_FAILURE);
+        return false;
     }
+
+    // Obtain ROM's contents size
+    rom_file.seekg(0, rom_file.end);
+    std::streampos rom_size{rom_file.tellg()};
+    rom_file.seekg(0, rom_file.beg);
+
+    if (rom_size > memory.size() - 0x200)
+    {
+        std::cerr << "ROM size exceeds available memory" << std::endl;
+        return false;
+    }
+
+    // Reinterpret cast needed for std::uint8_t* -> char*
+    if (!rom_file.read(reinterpret_cast<char *>(&memory.at(0x200)), rom_size))
+    {
+        std::cerr << "Failed to read from file at path: " << rom_path << std::endl;
+        return false;
+    }
+
+    rom_file.close();
+    return true;
 }
