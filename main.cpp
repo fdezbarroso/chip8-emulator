@@ -21,7 +21,7 @@ public:
     {
         if (this->size() >= max_size)
         {
-            throw std::runtime_error("Stack max size exceded");
+            throw std::runtime_error("Stack max size exceded.");
         }
 
         std::stack<T>::push(value);
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     load_font();
     if (!load_ROM(ROM_LOCATION))
     {
-        std::cerr << "Fatal error, execution aborted" << std::endl;
+        std::cerr << "Fatal error, execution aborted." << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
-        std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
+        std::cerr << "SDL could not initialize. SDL_Error: " << SDL_GetError() << std::endl;
         return EXIT_FAILURE;
     }
     else
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
         if (window == nullptr)
         {
-            std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
+            std::cerr << "Window could not be created. SDL_Error: " << SDL_GetError() << std::endl;
             return EXIT_FAILURE;
         }
         else
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 
                 if (!execute(opcode))
                 {
-                    std::cerr << "Fatal error, execution aborted" << std::endl;
+                    std::cerr << "Fatal error, execution aborted." << std::endl;
                     return EXIT_FAILURE;
                 }
 
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 
     SDL_Quit();
 
-    std::cout << "Emulator terminated" << std::endl;
+    std::cout << "Emulator terminated." << std::endl;
 
     return EXIT_SUCCESS;
 }
@@ -156,7 +156,7 @@ bool load_ROM(const std::string &rom_path)
 
     if (!rom_file)
     {
-        std::cerr << "Failed to open the file at path: " << rom_path << std::endl;
+        std::cerr << "Failed to open the file. Path: " << rom_path << std::endl;
         return false;
     }
 
@@ -167,14 +167,14 @@ bool load_ROM(const std::string &rom_path)
 
     if (rom_size > memory.size() - 0x200)
     {
-        std::cerr << "ROM size exceeds available memory" << std::endl;
+        std::cerr << "ROM size exceeds available memory." << std::endl;
         return false;
     }
 
     // Reinterpret cast needed for std::uint8_t* -> char*
     if (!rom_file.read(reinterpret_cast<char *>(&memory.at(0x200)), rom_size))
     {
-        std::cerr << "Failed to read from file at path: " << rom_path << std::endl;
+        std::cerr << "Failed to read from file. Path: " << rom_path << std::endl;
         return false;
     }
 
