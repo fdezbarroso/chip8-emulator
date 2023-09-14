@@ -186,7 +186,7 @@ bool execute(const std::uint16_t &opcode)
 {
     // Extract hexadecimal nibbles
     std::uint16_t n1{}, n2{}, n3{}, n4{};
-    n1 = (opcode >> 12) & 0xF;
+    n1 = opcode >> 12;
     n2 = (opcode >> 8) & 0xF;
     n3 = (opcode >> 4) & 0xF;
     n4 = opcode & 0xF;
