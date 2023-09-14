@@ -36,8 +36,9 @@ bool load_ROM(const std::string rom_path);
 const std::string ROM_LOCATION{"ROMs/logo.ch8"};
 const unsigned int START_ADDRESS{0x200};
 
-const int SCREEN_WIDTH = 640;
-const int SCREEN_HEIGHT = 320;
+const int SCREEN_WIDTH = 64;
+const int SCREEN_HEIGHT = 32;
+const int SCALE = 16;
 
 const std::array<uint8_t, 80> font{
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -84,6 +85,7 @@ int main(int argc, char *argv[])
     }
 
     pc = START_ADDRESS;
+    uint16_t opcode{};
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
@@ -115,6 +117,11 @@ int main(int argc, char *argv[])
                     if (e.type == SDL_QUIT)
                         quit = true;
                 }
+
+                opcode = memory.at(pc) << 8 | memory.at(pc + 1);
+                pc += 2;
+
+                SDL_UpdateWindowSurface(window);
             }
         }
     }
