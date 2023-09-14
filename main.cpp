@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <array>
 #include <stack>
+#include <string>
 #include <fstream>
 #include <iostream>
 
@@ -30,9 +31,9 @@ public:
 // Loads the font into memory, starting at address 0x050 and finishing at 0x09F
 void load_font();
 // Loads the .ch8 ROM file's contents into memory when given a path to it
-bool load_ROM(const char *rom_path);
+bool load_ROM(const std::string rom_path);
 
-const char *ROM_LOCATION{"ROMs/logo.ch8"};
+const std::string ROM_LOCATION{"ROMs/logo.ch8"};
 const unsigned int START_ADDRESS{0x200};
 
 const int SCREEN_WIDTH = 640;
@@ -71,6 +72,9 @@ std::uint8_t sound_timer{};
 std::array<std::uint8_t, 16> keys{};
 std::array<std::uint32_t, 64 * 32> display{};
 
+SDL_Window *window{nullptr};
+SDL_Surface *screenSurface{nullptr};
+
 int main(int argc, char *argv[])
 {
     load_font();
@@ -81,15 +85,7 @@ int main(int argc, char *argv[])
 
     pc = START_ADDRESS;
 
-    // TODO: Change to actual emulation loop
-    for (int i{0x200}; i < 4096; i++)
-    {
-    }
-
-    SDL_Window *window = NULL;
-    SDL_Surface *screenSurface = NULL;
-
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
     {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return EXIT_FAILURE;
@@ -98,7 +94,7 @@ int main(int argc, char *argv[])
     {
         window = SDL_CreateWindow("CHIP-8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 
-        if (window == NULL)
+        if (window == nullptr)
         {
             std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
             return EXIT_FAILURE;
@@ -106,11 +102,13 @@ int main(int argc, char *argv[])
         else
         {
             screenSurface = SDL_GetWindowSurface(window);
+
             SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0x00, 0x00, 0x00));
             SDL_UpdateWindowSurface(window);
+
             SDL_Event e;
             bool quit = false;
-            while (quit == false)
+            while (!quit)
             {
                 while (SDL_PollEvent(&e))
                 {
@@ -122,6 +120,7 @@ int main(int argc, char *argv[])
     }
 
     SDL_DestroyWindow(window);
+
     SDL_Quit();
 
     std::cout << "Emulator terminated" << std::endl;
@@ -135,7 +134,7 @@ void load_font()
         memory.at(i) = font.at(i - 0x050);
 }
 
-bool load_ROM(const char *rom_path)
+bool load_ROM(const std::string rom_path)
 {
     std::ifstream rom_file(rom_path, std::ios::binary);
 
@@ -147,7 +146,7 @@ bool load_ROM(const char *rom_path)
 
     // Obtain ROM's contents size
     rom_file.seekg(0, rom_file.end);
-    std::streampos rom_size{rom_file.tellg()};
+    std::size_t rom_size{static_cast<std::size_t>(rom_file.tellg())};
     rom_file.seekg(0, rom_file.beg);
 
     if (rom_size > memory.size() - 0x200)
