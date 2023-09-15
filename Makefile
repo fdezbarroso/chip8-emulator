@@ -11,13 +11,16 @@ SDL_LIBRARY_PATH = SDL2/lib
 # SDL flags
 SDLFLAGS = -lmingw32 -lSDL2main -lSDL2
 
+# Source files
+SOURCES = main.cpp
+
 #Executable name
 EXECUTABLE = chip8
 
 all: $(EXECUTABLE)
 
-$(EXECUTABLE): main.cpp
-	$(CC) $(CXXFLAGS) -I$(SDL_INCLUDE_PATH) -L$(SDL_LIBRARY_PATH) -o $(EXECUTABLE) main.cpp $(SDLFLAGS)
+$(EXECUTABLE): $(SOURCES)
+	$(CC) $(CXXFLAGS) -I$(SDL_INCLUDE_PATH) -L$(SDL_LIBRARY_PATH) -o $(EXECUTABLE) $(SOURCES) $(SDLFLAGS)
 
 clean:
 	del $(EXECUTABLE).exe

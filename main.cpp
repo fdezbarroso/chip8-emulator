@@ -8,32 +8,7 @@
 
 #include <SDL2/SDL.h>
 
-template <typename T, std::size_t S>
-class limited_stack : public std::stack<T>
-{
-private:
-    std::size_t max_size;
-
-public:
-    limited_stack() : max_size(S) {}
-
-    void push(const T &value)
-    {
-        if (this->size() >= max_size)
-        {
-            throw std::runtime_error("Stack max size exceded.");
-        }
-
-        std::stack<T>::push(value);
-    }
-};
-
-// Loads the font into memory, starting at address 0x050 and finishing at 0x09F
-void load_font();
-// Loads the .ch8 ROM file's contents into memory when given a path to it
-bool load_ROM(const std::string &rom_path);
-// Decodes the opcode's intruction and calls the corresponding execution function
-bool execute(const std::uint16_t &opcode);
+#include "limited_stack.hpp"
 
 const std::string ROM_LOCATION{"ROMs/logo.ch8"};
 const unsigned int START_ADDRESS{0x200};
@@ -42,7 +17,7 @@ const int SCREEN_WIDTH = 64;
 const int SCREEN_HEIGHT = 32;
 const int SCALE = 16;
 
-const std::array<uint8_t, 80> font{
+const std::array<uint8_t, 80> FONT{
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
     0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -60,6 +35,18 @@ const std::array<uint8_t, 80> font{
     0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
+
+// Initializes SDL and creates the emulator window
+bool initialize_SDL();
+
+// Loads the font into memory, starting at address 0x050 and finishing at 0x09F
+void load_font();
+
+// Loads the .ch8 ROM file's contents into memory when given a path to it
+bool load_ROM(const std::string &rom_path);
+
+// Decodes the opcode's intruction and calls the corresponding execution function
+bool execute(const std::uint16_t &opcode);
 
 std::array<std::uint8_t, 16> registers{};
 std::array<std::uint8_t, 4096> memory{};
@@ -80,59 +67,43 @@ SDL_Surface *screenSurface{nullptr};
 
 int main(int argc, char *argv[])
 {
+    if (!initialize_SDL())
+    {
+        std::cerr << "Fatal error, execution aborted." << std::endl;
+        return EXIT_FAILURE;
+    }
+
     load_font();
+
     if (!load_ROM(ROM_LOCATION))
     {
         std::cerr << "Fatal error, execution aborted." << std::endl;
         return EXIT_FAILURE;
     }
 
-    pc = START_ADDRESS;
     uint16_t opcode{};
+    pc = START_ADDRESS;
 
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    SDL_Event e;
+    bool quit = false;
+    while (!quit)
     {
-        std::cerr << "SDL could not initialize. SDL_Error: " << SDL_GetError() << std::endl;
-        return EXIT_FAILURE;
-    }
-    else
-    {
-        window = SDL_CreateWindow("CHIP-8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH * SCALE, SCREEN_HEIGHT * SCALE, SDL_WINDOW_SHOWN);
-
-        if (window == nullptr)
+        while (SDL_PollEvent(&e))
         {
-            std::cerr << "Window could not be created. SDL_Error: " << SDL_GetError() << std::endl;
+            if (e.type == SDL_QUIT)
+                quit = true;
+        }
+
+        opcode = memory.at(pc) << 8 | memory.at(pc + 1);
+        pc += 2;
+
+        if (!execute(opcode))
+        {
+            std::cerr << "Fatal error, execution aborted." << std::endl;
             return EXIT_FAILURE;
         }
-        else
-        {
-            screenSurface = SDL_GetWindowSurface(window);
 
-            SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0x00, 0x00, 0x00));
-            SDL_UpdateWindowSurface(window);
-
-            SDL_Event e;
-            bool quit = false;
-            while (!quit)
-            {
-                while (SDL_PollEvent(&e))
-                {
-                    if (e.type == SDL_QUIT)
-                        quit = true;
-                }
-
-                opcode = memory.at(pc) << 8 | memory.at(pc + 1);
-                pc += 2;
-
-                if (!execute(opcode))
-                {
-                    std::cerr << "Fatal error, execution aborted." << std::endl;
-                    return EXIT_FAILURE;
-                }
-
-                SDL_UpdateWindowSurface(window);
-            }
-        }
+        SDL_UpdateWindowSurface(window);
     }
 
     SDL_DestroyWindow(window);
@@ -144,10 +115,33 @@ int main(int argc, char *argv[])
     return EXIT_SUCCESS;
 }
 
+bool initialize_SDL()
+{
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    {
+        std::cerr << "SDL could not initialize. SDL_Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+    window = SDL_CreateWindow("CHIP-8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH * SCALE, SCREEN_HEIGHT * SCALE, SDL_WINDOW_SHOWN);
+
+    if (window == nullptr)
+    {
+        std::cerr << "Window could not be created. SDL_Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    screenSurface = SDL_GetWindowSurface(window);
+
+    SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0x00, 0x00, 0x00));
+    SDL_UpdateWindowSurface(window);
+
+    return true;
+}
+
 void load_font()
 {
     for (unsigned int i{0x050}; i <= 0x09F; i++)
-        memory.at(i) = font.at(i - 0x050);
+        memory.at(i) = FONT.at(i - 0x050);
 }
 
 bool load_ROM(const std::string &rom_path)
