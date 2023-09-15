@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <array>
 #include <chrono>
 #include <cstdint>
@@ -49,6 +50,14 @@ bool load_ROM(const std::string &rom_path);
 // Decodes the opcode's intruction and calls the corresponding execution function
 bool execute(const std::uint16_t &opcode);
 
+// INSTRUCTIONS
+void op_00E0();
+void op_1NNN(const std::uint16_t &opcode);
+void op_6XNN(const std::uint16_t &opcode, const std::uint16_t &n2);
+void op_7XNN(const std::uint16_t &opcode, const std::uint16_t &n2);
+void op_ANNN(const std::uint16_t &opcode);
+void op_DXYN(const std::uint16_t &opcode, const std::uint16_t &n2, const std::uint16_t &n3);
+
 std::array<std::uint8_t, 16> registers{};
 std::array<std::uint8_t, 4096> memory{};
 std::uint16_t index_register{};
@@ -82,8 +91,10 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    uint16_t opcode{};
     pc = START_ADDRESS;
+    std::uint16_t opcode{};
+
+    int i{};
 
     SDL_Event e;
     bool quit = false;
@@ -104,7 +115,12 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
+        if (i > 200)
+            break;
+
         SDL_UpdateWindowSurface(window);
+
+        i++;
     }
 
     SDL_DestroyWindow(window);
@@ -202,6 +218,7 @@ bool execute(const std::uint16_t &opcode)
         {
         case 0x0:
             std::cout << "CLS" << std::endl;
+            op_00E0();
             break;
 
         case 0xE:
@@ -217,6 +234,7 @@ bool execute(const std::uint16_t &opcode)
     // 1NNN
     case 0x1:
         std::cout << "JP addr" << std::endl;
+        op_1NNN(opcode);
         break;
 
     // 2NNN
@@ -248,11 +266,13 @@ bool execute(const std::uint16_t &opcode)
     // 6XKK
     case 0x6:
         std::cout << "LD Vx, byte" << std::endl;
+        op_6XNN(opcode, n2);
         break;
 
     // 7XKK
     case 0x7:
         std::cout << "ADD Vx, byte" << std::endl;
+        op_7XNN(opcode, n2);
         break;
 
     // 8XY0, 8XY1, 8XY2, 8XY3, 8XY4, 8XY5, 8XY6, 8XY7, 8XYE
@@ -315,6 +335,7 @@ bool execute(const std::uint16_t &opcode)
     // ANNN
     case 0xA:
         std::cout << "LD I, addr" << std::endl;
+        op_ANNN(opcode);
         break;
 
     // BNNN
@@ -330,6 +351,7 @@ bool execute(const std::uint16_t &opcode)
     // DXYN
     case 0xD:
         std::cout << "DRW Vx, Vy, nibble" << std::endl;
+        op_DXYN(opcode, n2, n3);
         break;
 
     // EX9E, EXA1
@@ -455,4 +477,34 @@ bool execute(const std::uint16_t &opcode)
         return false;
     }
     return true;
+}
+
+void op_00E0()
+{
+    std::fill(display.begin(), display.end(), 0);
+}
+
+void op_1NNN(const std::uint16_t &opcode)
+{
+    pc = opcode & 0x0FFF;
+}
+
+void op_6XNN(const std::uint16_t &opcode, const std::uint16_t &n2)
+{
+    registers.at(n2) = opcode & 0x00FF;
+}
+
+void op_7XNN(const std::uint16_t &opcode, const std::uint16_t &n2)
+{
+    registers.at(n2) += opcode & 0x00FF;
+}
+
+void op_ANNN(const std::uint16_t &opcode)
+{
+    index_register = opcode & 0x0FFF;
+}
+
+void op_DXYN(const std::uint16_t &opcode, const std::uint16_t &n2, const std::uint16_t &n3)
+{
+    std::cout << "DISPLAYING CONTENT" << std::endl;
 }
