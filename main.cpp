@@ -14,6 +14,7 @@
 
 const std::string ROM_LOCATION{"ROMs/logo.ch8"};
 const unsigned int START_ADDRESS{0x200};
+const unsigned int CYCLE_FRECUENCY{700};
 
 const int SCREEN_WIDTH = 64;
 const int SCREEN_HEIGHT = 32;
@@ -98,6 +99,10 @@ int main(int argc, char *argv[])
 
     SDL_Event e;
     bool quit = false;
+
+    std::chrono::high_resolution_clock::time_point last_cycle_time{std::chrono::high_resolution_clock::now()};
+    std::chrono::microseconds min_cycle_interval{100000 / CYCLE_FRECUENCY};
+
     while (!quit)
     {
         while (SDL_PollEvent(&e))
@@ -106,21 +111,26 @@ int main(int argc, char *argv[])
                 quit = true;
         }
 
-        opcode = memory.at(pc) << 8 | memory.at(pc + 1);
-        pc += 2;
-
-        if (!execute(opcode))
+        std::chrono::high_resolution_clock::time_point current_cycle_time{std::chrono::high_resolution_clock::now()};
+        std::chrono::microseconds time_since_last_cycle{std::chrono::duration_cast<std::chrono::microseconds>(current_cycle_time - last_cycle_time)};
+        if (time_since_last_cycle >= min_cycle_interval)
         {
-            std::cerr << "Fatal error, execution aborted." << std::endl;
-            return EXIT_FAILURE;
+            last_cycle_time = current_cycle_time;
+
+            // Form opcode from two contiguous memory locations
+            opcode = memory.at(pc) << 8 | memory.at(pc + 1);
+            pc += 2;
+
+            if (!execute(opcode))
+            {
+                std::cerr << "Fatal error, execution aborted." << std::endl;
+                return EXIT_FAILURE;
+            }
+
+            SDL_UpdateWindowSurface(window);
+
+            i++;
         }
-
-        if (i > 200)
-            break;
-
-        SDL_UpdateWindowSurface(window);
-
-        i++;
     }
 
     SDL_DestroyWindow(window);
