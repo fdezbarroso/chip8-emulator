@@ -13,12 +13,12 @@
 #include "limited_stack.hpp"
 
 const std::string ROM_LOCATION{"ROMs/logo.ch8"};
-const unsigned int START_ADDRESS{0x200};
-const unsigned int CYCLE_FRECUENCY{700};
+const std::uint32_t START_ADDRESS{0x200};
+const std::uint32_t CYCLE_FRECUENCY{700};
 
-const int SCREEN_WIDTH = 64;
-const int SCREEN_HEIGHT = 32;
-const int SCALE = 16;
+const std::uint32_t SCALE{16};
+const std::uint32_t WINDOW_WIDTH{64};
+const std::uint32_t WINDOW_HEIGHT{32};
 
 const std::array<uint8_t, 80> FONT{
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -51,13 +51,17 @@ bool load_ROM(const std::string &rom_path);
 // Decodes the opcode's intruction and calls the corresponding execution function
 bool execute(const std::uint16_t &opcode);
 
+// Loads the renderer with whatever is found on display
+void render_display();
+
 // INSTRUCTIONS
+// TODO: modify to actual CHIP-8 names
 void op_00E0();
 void op_1NNN(const std::uint16_t &opcode);
-void op_6XNN(const std::uint16_t &opcode, const std::uint16_t &n2);
-void op_7XNN(const std::uint16_t &opcode, const std::uint16_t &n2);
+void op_6XNN(const std::uint16_t &opcode, const std::uint8_t &n2);
+void op_7XNN(const std::uint16_t &opcode, const std::uint8_t &n2);
 void op_ANNN(const std::uint16_t &opcode);
-void op_DXYN(const std::uint16_t &opcode, const std::uint16_t &n2, const std::uint16_t &n3);
+void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uint8_t &n3);
 
 std::array<std::uint8_t, 16> registers{};
 std::array<std::uint8_t, 4096> memory{};
@@ -71,10 +75,10 @@ std::uint8_t delay_timer{};
 std::uint8_t sound_timer{};
 
 std::array<std::uint8_t, 16> keys{};
-std::array<std::uint32_t, 64 * 32> display{};
+std::array<std::uint32_t, WINDOW_WIDTH * WINDOW_HEIGHT> display{};
 
 SDL_Window *window{nullptr};
-SDL_Surface *screenSurface{nullptr};
+SDL_Renderer *renderer{nullptr};
 
 int main(int argc, char *argv[])
 {
@@ -94,8 +98,6 @@ int main(int argc, char *argv[])
 
     pc = START_ADDRESS;
     std::uint16_t opcode{};
-
-    int i{};
 
     SDL_Event e;
     bool quit = false;
@@ -126,13 +128,10 @@ int main(int argc, char *argv[])
                 std::cerr << "Fatal error, execution aborted." << std::endl;
                 return EXIT_FAILURE;
             }
-
-            SDL_UpdateWindowSurface(window);
-
-            i++;
         }
     }
 
+    SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
     SDL_Quit();
@@ -149,7 +148,7 @@ bool initialize_SDL()
         std::cerr << "SDL could not initialize. SDL_Error: " << SDL_GetError() << std::endl;
         return false;
     }
-    window = SDL_CreateWindow("CHIP-8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH * SCALE, SCREEN_HEIGHT * SCALE, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("CHIP-8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH * SCALE, WINDOW_HEIGHT * SCALE, SDL_WINDOW_SHOWN);
 
     if (window == nullptr)
     {
@@ -157,10 +156,17 @@ bool initialize_SDL()
         return false;
     }
 
-    screenSurface = SDL_GetWindowSurface(window);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
 
-    SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0x00, 0x00, 0x00));
-    SDL_UpdateWindowSurface(window);
+    if (renderer == nullptr)
+    {
+        std::cerr << "Renderer could not be created. SDL_Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    // Paint whole window black
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderClear(renderer);
 
     return true;
 }
@@ -168,7 +174,9 @@ bool initialize_SDL()
 void load_font()
 {
     for (unsigned int i{0x050}; i <= 0x09F; i++)
+    {
         memory.at(i) = FONT.at(i - 0x050);
+    }
 }
 
 bool load_ROM(const std::string &rom_path)
@@ -203,10 +211,36 @@ bool load_ROM(const std::string &rom_path)
     return true;
 }
 
+void render_display()
+{
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderClear(renderer);
+
+    for (std::uint32_t x{0}; x < WINDOW_WIDTH; x++)
+    {
+        for (std::uint32_t y{0}; y < WINDOW_HEIGHT; y++)
+        {
+            std::uint8_t pixel_value = display.at(x + y * WINDOW_WIDTH);
+
+            // Uses pixel_value for RGB as it should always be either 0x00 or 0xFF
+            SDL_SetRenderDrawColor(renderer, pixel_value, pixel_value, pixel_value, 0xFF);
+
+            SDL_Rect pixel_scaled;
+            pixel_scaled.x = x * SCALE;
+            pixel_scaled.y = y * SCALE;
+            pixel_scaled.w = SCALE;
+            pixel_scaled.h = SCALE;
+            SDL_RenderFillRect(renderer, &pixel_scaled);
+        }
+    }
+
+    SDL_RenderPresent(renderer);
+}
+
 bool execute(const std::uint16_t &opcode)
 {
     // Extract hexadecimal nibbles
-    std::uint16_t n1{}, n2{}, n3{}, n4{};
+    std::uint8_t n1{}, n2{}, n3{}, n4{};
     n1 = opcode >> 12;
     n2 = (opcode >> 8) & 0xF;
     n3 = (opcode >> 4) & 0xF;
@@ -492,6 +526,7 @@ bool execute(const std::uint16_t &opcode)
 void op_00E0()
 {
     std::fill(display.begin(), display.end(), 0);
+    render_display();
 }
 
 void op_1NNN(const std::uint16_t &opcode)
@@ -499,12 +534,12 @@ void op_1NNN(const std::uint16_t &opcode)
     pc = opcode & 0x0FFF;
 }
 
-void op_6XNN(const std::uint16_t &opcode, const std::uint16_t &n2)
+void op_6XNN(const std::uint16_t &opcode, const std::uint8_t &n2)
 {
     registers.at(n2) = opcode & 0x00FF;
 }
 
-void op_7XNN(const std::uint16_t &opcode, const std::uint16_t &n2)
+void op_7XNN(const std::uint16_t &opcode, const std::uint8_t &n2)
 {
     registers.at(n2) += opcode & 0x00FF;
 }
@@ -514,7 +549,35 @@ void op_ANNN(const std::uint16_t &opcode)
     index_register = opcode & 0x0FFF;
 }
 
-void op_DXYN(const std::uint16_t &opcode, const std::uint16_t &n2, const std::uint16_t &n3)
+void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uint8_t &n3)
 {
-    std::cout << "DISPLAYING CONTENT" << std::endl;
+    std::uint8_t x_ini{static_cast<std::uint8_t>(registers.at(n2) % WINDOW_WIDTH)};
+    std::uint8_t y_ini{static_cast<std::uint8_t>(registers.at(n3) % WINDOW_HEIGHT)};
+    std::uint8_t height{static_cast<std::uint8_t>(opcode & 0x000F)};
+
+    // VF set to 0 if no pixels are turned off
+    registers.at(0xF) = 0x00;
+
+    for (std::uint32_t y{0}; y < height; y++)
+    {
+        std::uint8_t sprite_data{memory.at(index_register + y)};
+
+        // x from 0 to 7 since sprites are always 8 pixels wide
+        for (std::uint32_t x{0}; x < 8; x++)
+        {
+            std::uint8_t sprite_bit = (sprite_data >> (7 - x)) & 0x01;
+            std::uint32_t display_index{x_ini + x + (y_ini + y) * WINDOW_WIDTH};
+
+            if (sprite_bit)
+            {
+                if (!registers.at(0xF) && display.at(display_index))
+                {
+                    // VF set to 1 if any pixels are turned off
+                    registers.at(0xF) = 0x01;
+                }
+                display.at(display_index) ^= 0xFFFFFFFF;
+            }
+        }
+    }
+    render_display();
 }
