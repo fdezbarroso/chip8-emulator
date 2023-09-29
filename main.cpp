@@ -22,7 +22,11 @@ const std::uint32_t SCALE{16};
 const std::uint32_t WINDOW_WIDTH{64};
 const std::uint32_t WINDOW_HEIGHT{32};
 
+// Use original COSMAC VIP opcode interpretations
 const bool COSMAC{true};
+
+// Use Amiga opcode interpretations
+const bool AMIGA{true};
 
 const std::array<uint8_t, 80> FONT{
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -97,8 +101,11 @@ void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uin
 void op_EX9E(const std::uint8_t &n2);
 void op_EXA1(const std::uint8_t &n2);
 void op_FX07(const std::uint8_t &n2);
+void op_FX0A(const std::uint8_t &n2);
 void op_FX15(const std::uint8_t &n2);
 void op_FX18(const std::uint8_t &n2);
+void op_FX1E(const std::uint8_t &n2);
+void op_FX29(const std::uint8_t &n2);
 
 std::array<std::uint8_t, 16> registers{};
 std::array<std::uint8_t, 4096> memory{};
@@ -117,6 +124,9 @@ std::array<std::uint32_t, WINDOW_WIDTH * WINDOW_HEIGHT> display{};
 
 SDL_Window *window{nullptr};
 SDL_Renderer *renderer{nullptr};
+
+// Used to detect key release in opcode FX0A
+int wait_key_pressed{-1};
 
 int main(int argc, char *argv[])
 {
@@ -169,7 +179,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // Update timers
+        // Update timers if needed
         std::chrono::microseconds time_since_last_timer{std::chrono::duration_cast<std::chrono::microseconds>(current_time - last_timer_time)};
         if (time_since_last_timer >= min_timer_interval)
         {
@@ -181,7 +191,7 @@ int main(int argc, char *argv[])
             }
             if (sound_timer)
             {
-                // Play beep
+                // TODO: Play beep
                 sound_timer--;
             }
         }
@@ -702,10 +712,12 @@ bool execute(const std::uint16_t &opcode)
             {
             case 0x7:
                 std::cout << "LD Vx, DT" << std::endl;
+                op_FX07(n2);
                 break;
 
             case 0xA:
                 std::cout << "LD Vx, K" << std::endl;
+                op_FX0A(n2);
                 break;
 
             default:
@@ -719,14 +731,17 @@ bool execute(const std::uint16_t &opcode)
             {
             case 0x5:
                 std::cout << "LD DT, Vx" << std::endl;
+                op_FX15(n2);
                 break;
 
             case 0x8:
                 std::cout << "LD ST, Vx" << std::endl;
+                op_FX18(n2);
                 break;
 
             case 0xE:
                 std::cout << "ADD I, Vx" << std::endl;
+                op_FX1E(n2);
                 break;
 
             default:
@@ -743,6 +758,7 @@ bool execute(const std::uint16_t &opcode)
             }
 
             std::cout << "LD F, Vx" << std::endl;
+            op_FX29(n2);
             break;
 
         case 0x3:
@@ -1021,6 +1037,37 @@ void op_FX07(const std::uint8_t &n2)
     registers.at(n2) = delay_timer;
 }
 
+void op_FX0A(const std::uint8_t &n2)
+{
+    if (COSMAC && wait_key_pressed != -1)
+    {
+        if (!keys.at(wait_key_pressed))
+        {
+            registers.at(wait_key_pressed) = wait_key_pressed;
+            wait_key_pressed = -1;
+            return;
+        }
+    }
+
+    for (std::uint8_t i{0}; wait_key_pressed == -1 && i < keys.size(); i++)
+    {
+        if (keys.at(i))
+        {
+            if (COSMAC)
+            {
+                wait_key_pressed = i;
+            }
+            else
+            {
+                registers.at(n2) = i;
+            }
+            return;
+        }
+    }
+
+    pc -= 2;
+}
+
 void op_FX15(const std::uint8_t &n2)
 {
     delay_timer = registers.at(n2);
@@ -1029,4 +1076,22 @@ void op_FX15(const std::uint8_t &n2)
 void op_FX18(const std::uint8_t &n2)
 {
     sound_timer = registers.at(n2);
+}
+
+void op_FX1E(const std::uint8_t &n2)
+{
+    index_register += registers.at(n2);
+
+    if (AMIGA)
+    {
+        if (index_register > 0x0FFF)
+        {
+            registers.at(0xF) = 0x1;
+        }
+    }
+}
+
+void op_FX29(const std::uint8_t &n2)
+{
+    index_register = 0x050 + (registers.at(n2) * 0x5);
 }
