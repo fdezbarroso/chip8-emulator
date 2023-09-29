@@ -20,7 +20,7 @@ const std::uint32_t SCALE{16};
 const std::uint32_t WINDOW_WIDTH{64};
 const std::uint32_t WINDOW_HEIGHT{32};
 
-const bool COSMAC{false};
+const bool COSMAC{true};
 
 const std::array<uint8_t, 80> FONT{
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -78,6 +78,7 @@ void op_8XY7(const std::uint8_t &n2, const std::uint8_t &n3);
 void op_8XYE(const std::uint8_t &n2, const std::uint8_t &n3);
 void op_9XY0(const std::uint8_t &n2, const std::uint8_t &n3);
 void op_ANNN(const std::uint16_t &opcode);
+void op_BNNN(const std::uint16_t &opcode, const std::uint8_t &n2);
 void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uint8_t &n3);
 
 std::array<std::uint8_t, 16> registers{};
@@ -417,6 +418,7 @@ bool execute(const std::uint16_t &opcode)
     // BNNN
     case 0xB:
         std::cout << "JP V0, addr" << std::endl;
+        op_BNNN(opcode, n2);
         break;
 
     // CXNN
@@ -709,6 +711,20 @@ void op_9XY0(const std::uint8_t &n2, const std::uint8_t &n3)
 void op_ANNN(const std::uint16_t &opcode)
 {
     index_register = opcode & 0x0FFF;
+}
+
+void op_BNNN(const std::uint16_t &opcode, const std::uint8_t &n2)
+{
+    // BNNN
+    if (COSMAC)
+    {
+        pc = (opcode & 0x0FFF) + registers.at(0x0);
+    }
+    // BXNN
+    else
+    {
+        pc = (opcode & 0x0FFF) + registers.at(n2);
+    }
 }
 
 void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uint8_t &n3)
