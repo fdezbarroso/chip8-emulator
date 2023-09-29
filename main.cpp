@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <random>
 #include <stack>
 #include <stdlib.h>
 #include <string>
@@ -79,6 +80,7 @@ void op_8XYE(const std::uint8_t &n2, const std::uint8_t &n3);
 void op_9XY0(const std::uint8_t &n2, const std::uint8_t &n3);
 void op_ANNN(const std::uint16_t &opcode);
 void op_BNNN(const std::uint16_t &opcode, const std::uint8_t &n2);
+void op_CXNN(const std::uint16_t &opcode, const std::uint8_t &n2);
 void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uint8_t &n3);
 
 std::array<std::uint8_t, 16> registers{};
@@ -725,6 +727,15 @@ void op_BNNN(const std::uint16_t &opcode, const std::uint8_t &n2)
     {
         pc = (opcode & 0x0FFF) + registers.at(n2);
     }
+}
+
+void op_CXNN(const std::uint16_t &opcode, const std::uint8_t &n2)
+{
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distr(0x0, 0xFF);
+
+    registers.at(n2) = distr(gen) & (opcode & 0x00FF);
 }
 
 void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uint8_t &n3)
