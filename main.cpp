@@ -20,6 +20,8 @@ const std::uint32_t SCALE{16};
 const std::uint32_t WINDOW_WIDTH{64};
 const std::uint32_t WINDOW_HEIGHT{32};
 
+const bool COSMAC{false};
+
 const std::array<uint8_t, 80> FONT{
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1
@@ -65,6 +67,15 @@ void op_4XNN(const std::uint16_t &opcode, const std::uint8_t &n2);
 void op_5XY0(const std::uint8_t &n2, const std::uint8_t &n3);
 void op_6XNN(const std::uint16_t &opcode, const std::uint8_t &n2);
 void op_7XNN(const std::uint16_t &opcode, const std::uint8_t &n2);
+void op_8XY0(const std::uint8_t &n2, const std::uint8_t &n3);
+void op_8XY1(const std::uint8_t &n2, const std::uint8_t &n3);
+void op_8XY2(const std::uint8_t &n2, const std::uint8_t &n3);
+void op_8XY3(const std::uint8_t &n2, const std::uint8_t &n3);
+void op_8XY4(const std::uint8_t &n2, const std::uint8_t &n3);
+void op_8XY5(const std::uint8_t &n2, const std::uint8_t &n3);
+void op_8XY6(const std::uint8_t &n2, const std::uint8_t &n3);
+void op_8XY7(const std::uint8_t &n2, const std::uint8_t &n3);
+void op_8XYE(const std::uint8_t &n2, const std::uint8_t &n3);
 void op_9XY0(const std::uint8_t &n2, const std::uint8_t &n3);
 void op_ANNN(const std::uint16_t &opcode);
 void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uint8_t &n3);
@@ -336,38 +347,47 @@ bool execute(const std::uint16_t &opcode)
         {
         case 0x0:
             std::cout << "LD Vx, Vy" << std::endl;
+            op_8XY0(n2, n3);
             break;
 
         case 0x1:
             std::cout << "OR Vx, Vy" << std::endl;
+            op_8XY1(n2, n3);
             break;
 
         case 0x2:
             std::cout << "AND Vx, Vy" << std::endl;
+            op_8XY2(n2, n3);
             break;
 
         case 0x3:
             std::cout << "XOR Vx, Vy" << std::endl;
+            op_8XY3(n2, n3);
             break;
 
         case 0x4:
             std::cout << "ADD Vx, Vy" << std::endl;
+            op_8XY4(n2, n3);
             break;
 
         case 0x5:
             std::cout << "SUB Vx, Vy" << std::endl;
+            op_8XY5(n2, n3);
             break;
 
         case 0x6:
             std::cout << "SHR Vx {, Vy}" << std::endl;
+            op_8XY6(n2, n3);
             break;
 
         case 0x7:
             std::cout << "SUBN Vx, Vy" << std::endl;
+            op_8XY7(n2, n3);
             break;
 
         case 0xE:
             std::cout << "SHL Vx {, Vy}" << std::endl;
+            op_8XYE(n2, n3);
             break;
 
         default:
@@ -385,6 +405,7 @@ bool execute(const std::uint16_t &opcode)
         }
 
         std::cout << "SNE Vx, Vy" << std::endl;
+        op_9XY0(n2, n3);
         break;
 
     // ANNN
@@ -564,6 +585,7 @@ void op_3XNN(const std::uint16_t &opcode, const std::uint8_t &n2)
         pc += 2;
     }
 }
+
 void op_4XNN(const std::uint16_t &opcode, const std::uint8_t &n2)
 {
     if (registers.at(n2) != (opcode & 0x00FF))
@@ -571,6 +593,7 @@ void op_4XNN(const std::uint16_t &opcode, const std::uint8_t &n2)
         pc += 2;
     }
 }
+
 void op_5XY0(const std::uint8_t &n2, const std::uint8_t &n3)
 {
     if (registers.at(n2) == registers.at(n3))
@@ -587,6 +610,92 @@ void op_6XNN(const std::uint16_t &opcode, const std::uint8_t &n2)
 void op_7XNN(const std::uint16_t &opcode, const std::uint8_t &n2)
 {
     registers.at(n2) += opcode & 0x00FF;
+}
+
+void op_8XY0(const std::uint8_t &n2, const std::uint8_t &n3)
+{
+    registers.at(n2) = registers.at(n3);
+}
+
+void op_8XY1(const std::uint8_t &n2, const std::uint8_t &n3)
+{
+    registers.at(n2) |= registers.at(n3);
+}
+
+void op_8XY2(const std::uint8_t &n2, const std::uint8_t &n3)
+{
+    registers.at(n2) &= registers.at(n3);
+}
+
+void op_8XY3(const std::uint8_t &n2, const std::uint8_t &n3)
+{
+    registers.at(n2) ^= registers.at(n3);
+}
+
+void op_8XY4(const std::uint8_t &n2, const std::uint8_t &n3)
+{
+    if (n2 + n3 > 0xFF)
+    {
+        registers.at(0xF) = 0x1;
+    }
+    else
+    {
+        registers.at(0xF) = 0x0;
+    }
+
+    registers.at(n2) += registers.at(n3);
+}
+
+void op_8XY5(const std::uint8_t &n2, const std::uint8_t &n3)
+{
+    if (n2 > n3)
+    {
+        registers.at(0xF) = 0x1;
+    }
+    else
+    {
+        registers.at(0xF) = 0x0;
+    }
+
+    registers.at(n2) = registers.at(n2) - registers.at(n3);
+}
+
+void op_8XY6(const std::uint8_t &n2, const std::uint8_t &n3)
+{
+    if (COSMAC)
+    {
+        registers.at(n2) = registers.at(n3);
+    }
+
+    registers.at(0xF) &= 0x000F;
+
+    registers.at(n2) >>= 0x1;
+}
+
+void op_8XY7(const std::uint8_t &n2, const std::uint8_t &n3)
+{
+    if (n3 > n2)
+    {
+        registers.at(0xF) = 0x1;
+    }
+    else
+    {
+        registers.at(0xF) = 0x0;
+    }
+
+    registers.at(n2) = registers.at(n3) - registers.at(n2);
+}
+
+void op_8XYE(const std::uint8_t &n2, const std::uint8_t &n3)
+{
+    if (COSMAC)
+    {
+        registers.at(n2) = registers.at(n3);
+    }
+
+    registers.at(0xF) &= 0xF000;
+
+    registers.at(n2) <<= 0x1;
 }
 
 void op_9XY0(const std::uint8_t &n2, const std::uint8_t &n3)
