@@ -54,7 +54,15 @@ bool load_ROM(const std::string &rom_path);
 // Loads the renderer with whatever is found on display
 void render_display();
 
-//
+// Checks if an event corresponds to any of the valid inputs and processes it
+// The valid inputs are:
+// Quit -> When closing the window
+// Keyboard press and release
+// The Key equivalents on a QWERTY keyboard are:
+// | 1 | 2 | 3 | 4 | -> | 1 | 2 | 3 | C |
+// | Q | W | E | R | -> | 4 | 5 | 6 | D |
+// | A | S | D | F | -> | 7 | 8 | 9 | E |
+// | Z | X | C | V | -> | A | 0 | B | F |
 bool handle_input(const SDL_Event &e);
 
 // Decodes the opcode's intruction and calls the corresponding execution function
