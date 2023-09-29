@@ -12,7 +12,7 @@
 
 #include "limited_stack.hpp"
 
-const std::string ROM_LOCATION{"ROMs/logo.ch8"};
+const std::string ROM_LOCATION{"ROMs/test_opcode.ch8"};
 const std::uint32_t START_ADDRESS{0x200};
 const std::uint32_t CYCLE_FRECUENCY{700};
 
@@ -57,9 +57,15 @@ void render_display();
 // INSTRUCTIONS
 // TODO: modify to actual CHIP-8 names
 void op_00E0();
+void op_00EE();
 void op_1NNN(const std::uint16_t &opcode);
+void op_2NNN(const std::uint16_t &opcode);
+void op_3XNN(const std::uint16_t &opcode, const std::uint8_t &n2);
+void op_4XNN(const std::uint16_t &opcode, const std::uint8_t &n2);
+void op_5XY0(const std::uint8_t &n2, const std::uint8_t &n3);
 void op_6XNN(const std::uint16_t &opcode, const std::uint8_t &n2);
 void op_7XNN(const std::uint16_t &opcode, const std::uint8_t &n2);
+void op_9XY0(const std::uint8_t &n2, const std::uint8_t &n3);
 void op_ANNN(const std::uint16_t &opcode);
 void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uint8_t &n3);
 
@@ -267,6 +273,7 @@ bool execute(const std::uint16_t &opcode)
 
         case 0xE:
             std::cout << "RET" << std::endl;
+            op_00EE();
             break;
 
         default:
@@ -284,16 +291,19 @@ bool execute(const std::uint16_t &opcode)
     // 2NNN
     case 0x2:
         std::cout << "CALL addr" << std::endl;
+        op_2NNN(opcode);
         break;
 
-    // 3XKK
+    // 3XNN
     case 0x3:
         std::cout << "SE Vx, byte" << std::endl;
+        op_3XNN(opcode, n2);
         break;
 
-    // 4XKK
+    // 4XNN
     case 0x4:
         std::cout << "SNE Vx, byte" << std::endl;
+        op_4XNN(opcode, n2);
         break;
 
     // 5XY0
@@ -305,15 +315,16 @@ bool execute(const std::uint16_t &opcode)
         }
 
         std::cout << "SE Vx, Vy" << std::endl;
+        op_5XY0(n2, n3);
         break;
 
-    // 6XKK
+    // 6XNN
     case 0x6:
         std::cout << "LD Vx, byte" << std::endl;
         op_6XNN(opcode, n2);
         break;
 
-    // 7XKK
+    // 7XNN
     case 0x7:
         std::cout << "ADD Vx, byte" << std::endl;
         op_7XNN(opcode, n2);
@@ -387,7 +398,7 @@ bool execute(const std::uint16_t &opcode)
         std::cout << "JP V0, addr" << std::endl;
         break;
 
-    // CXKK
+    // CXNN
     case 0xC:
         std::cout << "RND Vx, byte" << std::endl;
         break;
@@ -428,7 +439,7 @@ bool execute(const std::uint16_t &opcode)
         }
         break;
 
-    // Fx07, Fx0A, Fx15, Fx18, Fx1E, Fx29, Fx33, Fx55, Fx65
+    // FX07, FX0A, FX15, FX18, FX1E, FX29, FX33, FX55, FX65
     case 0xF:
         switch (n3)
         {
@@ -529,9 +540,43 @@ void op_00E0()
     render_display();
 }
 
+void op_00EE()
+{
+    pc = stack.top();
+    stack.pop();
+}
+
 void op_1NNN(const std::uint16_t &opcode)
 {
     pc = opcode & 0x0FFF;
+}
+
+void op_2NNN(const std::uint16_t &opcode)
+{
+    stack.push(opcode);
+    pc = opcode & 0x0FFF;
+}
+
+void op_3XNN(const std::uint16_t &opcode, const std::uint8_t &n2)
+{
+    if (registers.at(n2) == (opcode & 0x00FF))
+    {
+        pc += 2;
+    }
+}
+void op_4XNN(const std::uint16_t &opcode, const std::uint8_t &n2)
+{
+    if (registers.at(n2) != (opcode & 0x00FF))
+    {
+        pc += 2;
+    }
+}
+void op_5XY0(const std::uint8_t &n2, const std::uint8_t &n3)
+{
+    if (registers.at(n2) == registers.at(n3))
+    {
+        pc += 2;
+    }
 }
 
 void op_6XNN(const std::uint16_t &opcode, const std::uint8_t &n2)
@@ -542,6 +587,14 @@ void op_6XNN(const std::uint16_t &opcode, const std::uint8_t &n2)
 void op_7XNN(const std::uint16_t &opcode, const std::uint8_t &n2)
 {
     registers.at(n2) += opcode & 0x00FF;
+}
+
+void op_9XY0(const std::uint8_t &n2, const std::uint8_t &n3)
+{
+    if (registers.at(n2) != registers.at(n3))
+    {
+        pc += 2;
+    }
 }
 
 void op_ANNN(const std::uint16_t &opcode)
