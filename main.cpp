@@ -51,11 +51,14 @@ void load_font();
 // Loads the .ch8 ROM file's contents into memory when given a path to it
 bool load_ROM(const std::string &rom_path);
 
-// Decodes the opcode's intruction and calls the corresponding execution function
-bool execute(const std::uint16_t &opcode);
-
 // Loads the renderer with whatever is found on display
 void render_display();
+
+//
+bool handle_input(const SDL_Event &e);
+
+// Decodes the opcode's intruction and calls the corresponding execution function
+bool execute(const std::uint16_t &opcode);
 
 // INSTRUCTIONS
 // TODO: modify to actual CHIP-8 names
@@ -82,6 +85,8 @@ void op_ANNN(const std::uint16_t &opcode);
 void op_BNNN(const std::uint16_t &opcode, const std::uint8_t &n2);
 void op_CXNN(const std::uint16_t &opcode, const std::uint8_t &n2);
 void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uint8_t &n3);
+void op_EX9E(const std::uint8_t &n2);
+void op_EXA1(const std::uint8_t &n2);
 
 std::array<std::uint8_t, 16> registers{};
 std::array<std::uint8_t, 4096> memory{};
@@ -89,6 +94,7 @@ std::uint16_t index_register{};
 
 std::uint16_t pc{};
 limited_stack<std::uint16_t, 16> stack{};
+// TODO: probably remove sp
 std::uint8_t sp{};
 
 std::uint8_t delay_timer{};
@@ -129,8 +135,7 @@ int main(int argc, char *argv[])
     {
         while (SDL_PollEvent(&e))
         {
-            if (e.type == SDL_QUIT)
-                quit = true;
+            quit = handle_input(e);
         }
 
         std::chrono::high_resolution_clock::time_point current_cycle_time{std::chrono::high_resolution_clock::now()};
@@ -255,6 +260,196 @@ void render_display()
     }
 
     SDL_RenderPresent(renderer);
+}
+
+bool handle_input(const SDL_Event &e)
+{
+    switch (e.type)
+    {
+    case SDL_QUIT:
+        return true;
+        break;
+
+    case SDL_KEYDOWN:
+        switch (e.key.keysym.scancode)
+        {
+        // 1 -> 1
+        case SDL_SCANCODE_1:
+            keys.at(0x0) = 0x1;
+            break;
+
+        // 2 -> 2
+        case SDL_SCANCODE_2:
+            keys.at(0x1) = 0x1;
+            break;
+
+        // 3 -> 3
+        case SDL_SCANCODE_3:
+            keys.at(0x2) = 0x1;
+            break;
+
+        // 4 -> C
+        case SDL_SCANCODE_4:
+            keys.at(0x3) = 0x1;
+            break;
+
+        // Q -> 4
+        case SDL_SCANCODE_Q:
+            keys.at(0x4) = 0x1;
+            break;
+
+        // W -> 5
+        case SDL_SCANCODE_W:
+            keys.at(0x5) = 0x1;
+            break;
+
+        // E -> 6
+        case SDL_SCANCODE_E:
+            keys.at(0x6) = 0x1;
+            break;
+
+        // R -> D
+        case SDL_SCANCODE_R:
+            keys.at(0x7) = 0x1;
+            break;
+
+        // A -> 7
+        case SDL_SCANCODE_A:
+            keys.at(0x8) = 0x1;
+            break;
+
+        // S -> 8
+        case SDL_SCANCODE_S:
+            keys.at(0x9) = 0x1;
+            break;
+
+        // D -> 9
+        case SDL_SCANCODE_D:
+            keys.at(0xA) = 0x1;
+            break;
+
+        // F -> E
+        case SDL_SCANCODE_F:
+            keys.at(0xB) = 0x1;
+            break;
+
+        // Z -> A
+        case SDL_SCANCODE_Z:
+            keys.at(0xC) = 0x1;
+            break;
+
+        // X -> 0
+        case SDL_SCANCODE_X:
+            keys.at(0xD) = 0x1;
+            break;
+
+        // C -> B
+        case SDL_SCANCODE_C:
+            keys.at(0xE) = 0x1;
+            break;
+
+        // V -> F
+        case SDL_SCANCODE_V:
+            keys.at(0xF) = 0x1;
+            break;
+
+        default:
+            break;
+        }
+        break;
+
+    case SDL_KEYUP:
+        switch (e.key.keysym.scancode)
+        {
+        // 1 -> 1
+        case SDL_SCANCODE_1:
+            keys.at(0x0) = 0x0;
+            break;
+
+        // 2 -> 2
+        case SDL_SCANCODE_2:
+            keys.at(0x1) = 0x0;
+            break;
+
+        // 3 -> 3
+        case SDL_SCANCODE_3:
+            keys.at(0x2) = 0x0;
+            break;
+
+        // 4 -> C
+        case SDL_SCANCODE_4:
+            keys.at(0x3) = 0x0;
+            break;
+
+        // Q -> 4
+        case SDL_SCANCODE_Q:
+            keys.at(0x4) = 0x0;
+            break;
+
+        // W -> 5
+        case SDL_SCANCODE_W:
+            keys.at(0x5) = 0x0;
+            break;
+
+        // E -> 6
+        case SDL_SCANCODE_E:
+            keys.at(0x6) = 0x0;
+            break;
+
+        // R -> D
+        case SDL_SCANCODE_R:
+            keys.at(0x7) = 0x0;
+            break;
+
+        // A -> 7
+        case SDL_SCANCODE_A:
+            keys.at(0x8) = 0x0;
+            break;
+
+        // S -> 8
+        case SDL_SCANCODE_S:
+            keys.at(0x9) = 0x0;
+            break;
+
+        // D -> 9
+        case SDL_SCANCODE_D:
+            keys.at(0xA) = 0x0;
+            break;
+
+        // F -> E
+        case SDL_SCANCODE_F:
+            keys.at(0xB) = 0x0;
+            break;
+
+        // Z -> A
+        case SDL_SCANCODE_Z:
+            keys.at(0xC) = 0x0;
+            break;
+
+        // X -> 0
+        case SDL_SCANCODE_X:
+            keys.at(0xD) = 0x0;
+            break;
+
+        // C -> B
+        case SDL_SCANCODE_C:
+            keys.at(0xE) = 0x0;
+            break;
+
+        // V -> F
+        case SDL_SCANCODE_V:
+            keys.at(0xF) = 0x0;
+            break;
+
+        default:
+            break;
+        }
+        break;
+
+    default:
+        break;
+    }
+    return false;
 }
 
 bool execute(const std::uint16_t &opcode)
@@ -447,6 +642,7 @@ bool execute(const std::uint16_t &opcode)
             }
 
             std::cout << "SKP Vx" << std::endl;
+            op_EX9E(n2);
             break;
 
         case 0xA:
@@ -457,6 +653,7 @@ bool execute(const std::uint16_t &opcode)
             }
 
             std::cout << "SKNP Vx" << std::endl;
+            op_EXA1(n2);
             break;
 
         default:
@@ -770,4 +967,20 @@ void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uin
         }
     }
     render_display();
+}
+
+void op_EX9E(const std::uint8_t &n2)
+{
+    if (keys.at(registers.at(n2)) == 0x1)
+    {
+        pc += 2;
+    }
+}
+
+void op_EXA1(const std::uint8_t &n2)
+{
+    if (keys.at(registers.at(n2)) == 0x0)
+    {
+        pc += 2;
+    }
 }
