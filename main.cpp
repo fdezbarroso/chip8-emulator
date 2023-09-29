@@ -16,6 +16,7 @@
 const std::string ROM_LOCATION{"ROMs/test_opcode.ch8"};
 const std::uint32_t START_ADDRESS{0x200};
 const std::uint32_t CYCLE_FRECUENCY{700};
+const std::uint32_t TIMER_FRECUENCY{60};
 
 const std::uint32_t SCALE{16};
 const std::uint32_t WINDOW_WIDTH{64};
@@ -95,6 +96,9 @@ void op_CXNN(const std::uint16_t &opcode, const std::uint8_t &n2);
 void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uint8_t &n3);
 void op_EX9E(const std::uint8_t &n2);
 void op_EXA1(const std::uint8_t &n2);
+void op_FX07(const std::uint8_t &n2);
+void op_FX15(const std::uint8_t &n2);
+void op_FX18(const std::uint8_t &n2);
 
 std::array<std::uint8_t, 16> registers{};
 std::array<std::uint8_t, 4096> memory{};
@@ -137,7 +141,9 @@ int main(int argc, char *argv[])
     bool quit = false;
 
     std::chrono::high_resolution_clock::time_point last_cycle_time{std::chrono::high_resolution_clock::now()};
+    std::chrono::high_resolution_clock::time_point last_timer_time{std::chrono::high_resolution_clock::now()};
     std::chrono::microseconds min_cycle_interval{100000 / CYCLE_FRECUENCY};
+    std::chrono::microseconds min_timer_interval{100000 / TIMER_FRECUENCY};
 
     while (!quit)
     {
@@ -146,11 +152,11 @@ int main(int argc, char *argv[])
             quit = handle_input(e);
         }
 
-        std::chrono::high_resolution_clock::time_point current_cycle_time{std::chrono::high_resolution_clock::now()};
-        std::chrono::microseconds time_since_last_cycle{std::chrono::duration_cast<std::chrono::microseconds>(current_cycle_time - last_cycle_time)};
+        std::chrono::high_resolution_clock::time_point current_time{std::chrono::high_resolution_clock::now()};
+        std::chrono::microseconds time_since_last_cycle{std::chrono::duration_cast<std::chrono::microseconds>(current_time - last_cycle_time)};
         if (time_since_last_cycle >= min_cycle_interval)
         {
-            last_cycle_time = current_cycle_time;
+            last_cycle_time = current_time;
 
             // Form opcode from two contiguous memory locations
             opcode = memory.at(pc) << 8 | memory.at(pc + 1);
@@ -160,6 +166,23 @@ int main(int argc, char *argv[])
             {
                 std::cerr << "Fatal error, execution aborted." << std::endl;
                 return EXIT_FAILURE;
+            }
+        }
+
+        // Update timers
+        std::chrono::microseconds time_since_last_timer{std::chrono::duration_cast<std::chrono::microseconds>(current_time - last_timer_time)};
+        if (time_since_last_timer >= min_timer_interval)
+        {
+            last_timer_time = current_time;
+
+            if (delay_timer)
+            {
+                delay_timer--;
+            }
+            if (sound_timer)
+            {
+                // Play beep
+                sound_timer--;
             }
         }
     }
@@ -991,4 +1014,19 @@ void op_EXA1(const std::uint8_t &n2)
     {
         pc += 2;
     }
+}
+
+void op_FX07(const std::uint8_t &n2)
+{
+    registers.at(n2) = delay_timer;
+}
+
+void op_FX15(const std::uint8_t &n2)
+{
+    delay_timer = registers.at(n2);
+}
+
+void op_FX18(const std::uint8_t &n2)
+{
+    sound_timer = registers.at(n2);
 }
