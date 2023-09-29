@@ -426,6 +426,7 @@ bool execute(const std::uint16_t &opcode)
     // CXNN
     case 0xC:
         std::cout << "RND Vx, byte" << std::endl;
+        op_CXNN(opcode, n2);
         break;
 
     // DXYN
@@ -578,7 +579,7 @@ void op_1NNN(const std::uint16_t &opcode)
 
 void op_2NNN(const std::uint16_t &opcode)
 {
-    stack.push(opcode);
+    stack.push(pc);
     pc = opcode & 0x0FFF;
 }
 
