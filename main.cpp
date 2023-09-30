@@ -26,7 +26,7 @@ const std::uint32_t WINDOW_HEIGHT{32};
 const bool COSMAC{false};
 
 // Use Amiga opcode interpretations
-const bool AMIGA{false};
+const bool AMIGA{true};
 
 const std::array<uint8_t, 80> FONT{
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -889,7 +889,8 @@ void op_8XY3(const std::uint8_t &n2, const std::uint8_t &n3)
 
 void op_8XY4(const std::uint8_t &n2, const std::uint8_t &n3)
 {
-    if (n2 + n3 > 0xFF)
+    std::uint16_t sum{static_cast<std::uint16_t>(registers.at(n2) + registers.at(n3))};
+    if (sum > 0xFF)
     {
         registers.at(0xF) = 0x1;
     }
@@ -898,12 +899,12 @@ void op_8XY4(const std::uint8_t &n2, const std::uint8_t &n3)
         registers.at(0xF) = 0x0;
     }
 
-    registers.at(n2) += registers.at(n3);
+    registers.at(n2) = static_cast<std::uint8_t>(sum & 0xFF);
 }
 
 void op_8XY5(const std::uint8_t &n2, const std::uint8_t &n3)
 {
-    if (n2 > n3)
+    if (registers.at(n2) > registers.at(n3))
     {
         registers.at(0xF) = 0x1;
     }
@@ -922,14 +923,14 @@ void op_8XY6(const std::uint8_t &n2, const std::uint8_t &n3)
         registers.at(n2) = registers.at(n3);
     }
 
-    registers.at(0xF) &= 0x000F;
+    registers.at(0xF) = registers.at(n2) & 0x1;
 
     registers.at(n2) >>= 0x1;
 }
 
 void op_8XY7(const std::uint8_t &n2, const std::uint8_t &n3)
 {
-    if (n3 > n2)
+    if (registers.at(n3) > registers.at(n2))
     {
         registers.at(0xF) = 0x1;
     }
@@ -948,7 +949,7 @@ void op_8XYE(const std::uint8_t &n2, const std::uint8_t &n3)
         registers.at(n2) = registers.at(n3);
     }
 
-    registers.at(0xF) &= 0xF000;
+    registers.at(0xF) = (registers.at(n2) & 0x80) >> 0x7;
 
     registers.at(n2) <<= 0x1;
 }
@@ -1047,7 +1048,7 @@ void op_FX0A(const std::uint8_t &n2)
 {
     if (COSMAC && wait_key_pressed != -1)
     {
-        if (!keys.at(wait_key_pressed))
+        if (keys.at(wait_key_pressed) == 0x0)
         {
             registers.at(wait_key_pressed) = wait_key_pressed;
             wait_key_pressed = -1;
@@ -1057,7 +1058,7 @@ void op_FX0A(const std::uint8_t &n2)
 
     for (std::uint8_t i{0}; wait_key_pressed == -1 && i < keys.size(); i++)
     {
-        if (keys.at(i))
+        if (keys.at(i) == 0x1)
         {
             if (COSMAC)
             {
