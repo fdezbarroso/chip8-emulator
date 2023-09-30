@@ -13,9 +13,10 @@
 
 #include "limited_stack.hpp"
 
-const std::string ROM_LOCATION{"ROMs/test_opcode.ch8"};
+const std::string ROM_LOCATION{"ROMs/space_invaders.ch8"};
 const std::uint32_t START_ADDRESS{0x200};
-const std::uint32_t CYCLE_FRECUENCY{700};
+const std::uint32_t FONT_ADDRESS{0x050};
+const std::uint32_t CYCLE_FRECUENCY{100};
 const std::uint32_t TIMER_FRECUENCY{60};
 
 const std::uint32_t SCALE{16};
@@ -23,7 +24,7 @@ const std::uint32_t WINDOW_WIDTH{64};
 const std::uint32_t WINDOW_HEIGHT{32};
 
 // Use original COSMAC VIP opcode interpretations
-const bool COSMAC{false};
+const bool COSMAC{true};
 
 // Use Amiga opcode interpretations
 const bool AMIGA{true};
@@ -242,9 +243,9 @@ bool initialize_SDL()
 
 void load_font()
 {
-    for (unsigned int i{0x050}; i <= 0x09F; i++)
+    for (std::uint32_t i{FONT_ADDRESS}; i <= 0x09F; i++)
     {
-        memory.at(i) = FONT.at(i - 0x050);
+        memory.at(i) = FONT.at(i - FONT_ADDRESS);
     }
 }
 
@@ -656,7 +657,7 @@ bool execute(const std::uint16_t &opcode)
         op_ANNN(opcode);
         break;
 
-    // BNNN
+    // BNNN / BXNN
     case 0xB:
         std::cout << "JP V0, addr" << std::endl;
         op_BNNN(opcode, n2);
@@ -790,11 +791,11 @@ bool execute(const std::uint16_t &opcode)
             if (n4 != 0x5)
             {
                 std::cerr << "Invalid instruction. Opcode: " << std::hex << opcode << std::endl;
-                op_FX65(n2);
                 return false;
             }
 
             std::cout << "LD Vx, [I]" << std::endl;
+            op_FX65(n2);
             break;
 
         default:
@@ -997,7 +998,7 @@ void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uin
     std::uint8_t height{static_cast<std::uint8_t>(opcode & 0x000F)};
 
     // VF set to 0 if no pixels are turned off
-    registers.at(0xF) = 0x00;
+    registers.at(0xF) = 0x0;
 
     for (std::uint32_t y{0}; y < height; y++)
     {
@@ -1006,15 +1007,16 @@ void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uin
         // x from 0 to 7 since sprites are always 8 pixels wide
         for (std::uint32_t x{0}; x < 8; x++)
         {
-            std::uint8_t sprite_bit = (sprite_data >> (7 - x)) & 0x01;
-            std::uint32_t display_index{x_ini + x + (y_ini + y) * WINDOW_WIDTH};
+            std::uint8_t sprite_bit{static_cast<std::uint8_t>((sprite_data >> (7 - x)) & 0x1)};
+            std::uint32_t display_index{(x_ini + x) % WINDOW_WIDTH + ((y_ini + y) % WINDOW_HEIGHT) * WINDOW_WIDTH};
 
             if (sprite_bit)
             {
-                if (!registers.at(0xF) && display.at(display_index))
+                std::cout << display_index << std::endl;
+                if (!registers.at(0xF) && display.at(display_index) == 0xFFFFFFFF)
                 {
                     // VF set to 1 if any pixels are turned off
-                    registers.at(0xF) = 0x01;
+                    registers.at(0xF) = 0x1;
                 }
                 display.at(display_index) ^= 0xFFFFFFFF;
             }
@@ -1101,7 +1103,7 @@ void op_FX1E(const std::uint8_t &n2)
 void op_FX29(const std::uint8_t &n2)
 {
     // TODO: Investigate further on COSMAC specific implementation
-    index_register = 0x050 + (registers.at(n2) * 0x5);
+    index_register = FONT_ADDRESS + (registers.at(n2) * 0x5);
 }
 
 void op_FX33(const std::uint8_t &n2)
