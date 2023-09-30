@@ -23,10 +23,10 @@ const std::uint32_t WINDOW_WIDTH{64};
 const std::uint32_t WINDOW_HEIGHT{32};
 
 // Use original COSMAC VIP opcode interpretations
-const bool COSMAC{true};
+const bool COSMAC{false};
 
 // Use Amiga opcode interpretations
-const bool AMIGA{true};
+const bool AMIGA{false};
 
 const std::array<uint8_t, 80> FONT{
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -106,6 +106,9 @@ void op_FX15(const std::uint8_t &n2);
 void op_FX18(const std::uint8_t &n2);
 void op_FX1E(const std::uint8_t &n2);
 void op_FX29(const std::uint8_t &n2);
+void op_FX33(const std::uint8_t &n2);
+void op_FX55(const std::uint8_t &n2);
+void op_FX65(const std::uint8_t &n2);
 
 std::array<std::uint8_t, 16> registers{};
 std::array<std::uint8_t, 4096> memory{};
@@ -769,6 +772,7 @@ bool execute(const std::uint16_t &opcode)
             }
 
             std::cout << "LD B, Vx" << std::endl;
+            op_FX33(n2);
             break;
 
         case 0x5:
@@ -779,12 +783,14 @@ bool execute(const std::uint16_t &opcode)
             }
 
             std::cout << "LD [I], Vx" << std::endl;
+            op_FX55(n2);
             break;
 
         case 0x6:
             if (n4 != 0x5)
             {
                 std::cerr << "Invalid instruction. Opcode: " << std::hex << opcode << std::endl;
+                op_FX65(n2);
                 return false;
             }
 
@@ -1093,5 +1099,35 @@ void op_FX1E(const std::uint8_t &n2)
 
 void op_FX29(const std::uint8_t &n2)
 {
+    // TODO: Investigate further on COSMAC specific implementation
     index_register = 0x050 + (registers.at(n2) * 0x5);
+}
+
+void op_FX33(const std::uint8_t &n2)
+{
+    std::uint8_t val{registers.at(n2)};
+
+    memory.at(index_register + 0x2) = val % 10;
+    val /= 10;
+
+    memory.at(index_register + 0x1) = val % 10;
+    val /= 10;
+
+    memory.at(index_register) = val % 10;
+}
+
+void op_FX55(const std::uint8_t &n2)
+{
+    for (std::uint8_t i{0}; i <= n2; i++)
+    {
+        memory.at(index_register + i) = registers.at(i);
+    }
+}
+
+void op_FX65(const std::uint8_t &n2)
+{
+    for (std::uint8_t i{0}; i <= n2; i++)
+    {
+        registers.at(i) = memory.at(index_register + i);
+    }
 }
