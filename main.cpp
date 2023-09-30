@@ -13,10 +13,10 @@
 
 #include "limited_stack.hpp"
 
-const std::string ROM_LOCATION{"ROMs/space_invaders.ch8"};
+const std::string ROM_LOCATION{"ROMs/submarine.ch8"};
 const std::uint32_t START_ADDRESS{0x200};
 const std::uint32_t FONT_ADDRESS{0x050};
-const std::uint32_t CYCLE_FRECUENCY{100};
+const std::uint32_t CYCLE_FRECUENCY{10};
 const std::uint32_t TIMER_FRECUENCY{60};
 
 const std::uint32_t SCALE{16};
@@ -24,7 +24,7 @@ const std::uint32_t WINDOW_WIDTH{64};
 const std::uint32_t WINDOW_HEIGHT{32};
 
 // Use original COSMAC VIP opcode interpretations
-const bool COSMAC{true};
+const bool COSMAC{false};
 
 // Use Amiga opcode interpretations
 const bool AMIGA{true};
@@ -1012,7 +1012,6 @@ void op_DXYN(const std::uint16_t &opcode, const std::uint8_t &n2, const std::uin
 
             if (sprite_bit)
             {
-                std::cout << display_index << std::endl;
                 if (!registers.at(0xF) && display.at(display_index) == 0xFFFFFFFF)
                 {
                     // VF set to 1 if any pixels are turned off
