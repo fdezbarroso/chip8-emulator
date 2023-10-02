@@ -13,21 +13,12 @@
 
 #include "limited_stack.hpp"
 
-const std::string ROM_LOCATION{"ROMs/submarine.ch8"};
 const std::uint32_t START_ADDRESS{0x200};
 const std::uint32_t FONT_ADDRESS{0x050};
-const std::uint32_t CYCLE_FRECUENCY{10};
 const std::uint32_t TIMER_FRECUENCY{60};
 
-const std::uint32_t SCALE{16};
 const std::uint32_t WINDOW_WIDTH{64};
 const std::uint32_t WINDOW_HEIGHT{32};
-
-// Use original COSMAC VIP opcode interpretations
-const bool COSMAC{false};
-
-// Use Amiga opcode interpretations
-const bool AMIGA{true};
 
 const std::array<uint8_t, 80> FONT{
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -128,12 +119,79 @@ std::array<std::uint32_t, WINDOW_WIDTH * WINDOW_HEIGHT> display{};
 
 SDL_Window *window{nullptr};
 SDL_Renderer *renderer{nullptr};
+std::uint32_t window_scale{};
+
+std::string rom_location{};
+
+std::uint32_t cycle_frecuency{};
+
+// Use original COSMAC VIP opcode interpretations
+bool cosmac{false};
+// Use Amiga opcode interpretations
+bool amiga{false};
 
 // Used to detect key release in opcode FX0A
 int wait_key_pressed{-1};
 
 int main(int argc, char *argv[])
 {
+    std::string emulator_usage{"Usage: /path/to/chip8.exe /path/to/rom<string> cycle_delay<int> window_scale<int> --cosmac(optional) --amiga(optional)"};
+
+    for (int i{1}; i < argc; i++)
+    {
+        std::string arg{argv[i]};
+        if (arg == "--help" || arg == "-h")
+        {
+            std::cout << "A simple CHIP-8 emulator\n"
+                      << emulator_usage << std::endl;
+            return EXIT_SUCCESS;
+        }
+    }
+
+    if (argc < 4)
+    {
+        std::cout << "Not enough arguments\n"
+                  << emulator_usage << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    rom_location = argv[1];
+
+    try
+    {
+        cycle_frecuency = std::stoi(argv[2]);
+    }
+    catch (std::invalid_argument &)
+    {
+        std::cout << "Invalid cycle_delay argument\n"
+                  << emulator_usage << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    try
+    {
+        window_scale = std::stoi(argv[3]);
+    }
+    catch (std::invalid_argument &)
+    {
+        std::cout << "Invalid window_scale argument\n"
+                  << emulator_usage << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    for (int i{4}; i < argc; i++)
+    {
+        std::string arg{argv[i]};
+        if (arg == "--cosmac")
+        {
+            cosmac = true;
+        }
+        if (arg == "--amiga")
+        {
+            amiga = true;
+        }
+    }
+
     if (!initialize_SDL())
     {
         std::cerr << "Fatal error, execution aborted." << std::endl;
@@ -142,7 +200,7 @@ int main(int argc, char *argv[])
 
     load_font();
 
-    if (!load_ROM(ROM_LOCATION))
+    if (!load_ROM(rom_location))
     {
         std::cerr << "Fatal error, execution aborted." << std::endl;
         return EXIT_FAILURE;
@@ -156,7 +214,7 @@ int main(int argc, char *argv[])
 
     std::chrono::high_resolution_clock::time_point last_cycle_time{std::chrono::high_resolution_clock::now()};
     std::chrono::high_resolution_clock::time_point last_timer_time{std::chrono::high_resolution_clock::now()};
-    std::chrono::microseconds min_cycle_interval{100000 / CYCLE_FRECUENCY};
+    std::chrono::microseconds min_cycle_interval{100000 / cycle_frecuency};
     std::chrono::microseconds min_timer_interval{100000 / TIMER_FRECUENCY};
 
     while (!quit)
@@ -218,7 +276,7 @@ bool initialize_SDL()
         std::cerr << "SDL could not initialize. SDL_Error: " << SDL_GetError() << std::endl;
         return false;
     }
-    window = SDL_CreateWindow("CHIP-8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH * SCALE, WINDOW_HEIGHT * SCALE, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("CHIP-8", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, WINDOW_WIDTH * window_scale, WINDOW_HEIGHT * window_scale, SDL_WINDOW_SHOWN);
 
     if (window == nullptr)
     {
@@ -296,10 +354,10 @@ void render_display()
             SDL_SetRenderDrawColor(renderer, pixel_value, pixel_value, pixel_value, 0xFF);
 
             SDL_Rect pixel_scaled;
-            pixel_scaled.x = x * SCALE;
-            pixel_scaled.y = y * SCALE;
-            pixel_scaled.w = SCALE;
-            pixel_scaled.h = SCALE;
+            pixel_scaled.x = x * window_scale;
+            pixel_scaled.y = y * window_scale;
+            pixel_scaled.w = window_scale;
+            pixel_scaled.h = window_scale;
             SDL_RenderFillRect(renderer, &pixel_scaled);
         }
     }
@@ -919,7 +977,7 @@ void op_8XY5(const std::uint8_t &n2, const std::uint8_t &n3)
 
 void op_8XY6(const std::uint8_t &n2, const std::uint8_t &n3)
 {
-    if (COSMAC)
+    if (cosmac)
     {
         registers.at(n2) = registers.at(n3);
     }
@@ -945,7 +1003,7 @@ void op_8XY7(const std::uint8_t &n2, const std::uint8_t &n3)
 
 void op_8XYE(const std::uint8_t &n2, const std::uint8_t &n3)
 {
-    if (COSMAC)
+    if (cosmac)
     {
         registers.at(n2) = registers.at(n3);
     }
@@ -971,7 +1029,7 @@ void op_ANNN(const std::uint16_t &opcode)
 void op_BNNN(const std::uint16_t &opcode, const std::uint8_t &n2)
 {
     // BNNN
-    if (COSMAC)
+    if (cosmac)
     {
         pc = (opcode & 0x0FFF) + registers.at(0x0);
     }
@@ -1047,7 +1105,7 @@ void op_FX07(const std::uint8_t &n2)
 
 void op_FX0A(const std::uint8_t &n2)
 {
-    if (COSMAC && wait_key_pressed != -1)
+    if (cosmac && wait_key_pressed != -1)
     {
         if (keys.at(wait_key_pressed) == 0x0)
         {
@@ -1061,7 +1119,7 @@ void op_FX0A(const std::uint8_t &n2)
     {
         if (keys.at(i) == 0x1)
         {
-            if (COSMAC)
+            if (cosmac)
             {
                 wait_key_pressed = i;
             }
@@ -1090,7 +1148,7 @@ void op_FX1E(const std::uint8_t &n2)
 {
     index_register += registers.at(n2);
 
-    if (AMIGA)
+    if (amiga)
     {
         if (index_register > 0x0FFF)
         {
@@ -1101,7 +1159,6 @@ void op_FX1E(const std::uint8_t &n2)
 
 void op_FX29(const std::uint8_t &n2)
 {
-    // TODO: Investigate further on COSMAC specific implementation
     index_register = FONT_ADDRESS + (registers.at(n2) * 0x5);
 }
 
