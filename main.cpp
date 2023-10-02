@@ -42,6 +42,9 @@ const std::array<uint8_t, 80> FONT{
 // Initializes SDL and creates the emulator window
 bool initialize_SDL();
 
+// Cleans SDL components
+void clean_SDL();
+
 // Loads the font into memory, starting at address 0x050 and finishing at 0x09F
 void load_font();
 
@@ -259,10 +262,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-
-    SDL_Quit();
+    clean_SDL();
 
     std::cout << "Emulator terminated." << std::endl;
 
@@ -297,6 +297,13 @@ bool initialize_SDL()
     SDL_RenderClear(renderer);
 
     return true;
+}
+
+void clean_SDL()
+{
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 }
 
 void load_font()
