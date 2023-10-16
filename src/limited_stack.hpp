@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LIMITED_STACK_HPP
+#define LIMITED_STACK_HPP
 
 #include <stack>
 #include <stdexcept>
@@ -22,3 +23,5 @@ public:
         std::stack<T>::push(value);
     }
 };
+
+#endif
