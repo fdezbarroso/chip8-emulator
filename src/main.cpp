@@ -15,62 +15,19 @@ int main(int argc, char *argv[])
     SDL_Renderer *renderer{nullptr};
     std::uint32_t window_scale{};
 
-    // TODO: modify with parse_arguments function call
-    std::string emulator_usage{"Usage: /path/to/chip8.exe /path/to/rom<string> cycle_delay<int> window_scale<int> --cosmac(optional) --amiga(optional)"};
-
-    for (int i{1}; i < argc; i++)
+    switch (parse_arguments(chip8, argc, argv, rom_location, cycle_frecuency, window_scale))
     {
-        std::string arg{argv[i]};
-        if (arg == "--help" || arg == "-h")
-        {
-            std::cout << "A simple CHIP-8 emulator\n"
-                      << emulator_usage << std::endl;
-            return EXIT_SUCCESS;
-        }
-    }
-
-    if (argc < 4)
-    {
-        std::cout << "Not enough arguments\n"
-                  << emulator_usage << std::endl;
+    case -1:
+        std::cerr << "Fatal error, execution aborted." << std::endl;
         return EXIT_FAILURE;
-    }
+        break;
 
-    rom_location = argv[1];
+    case 1:
+        return EXIT_SUCCESS;
+        break;
 
-    try
-    {
-        cycle_frecuency = std::stoi(argv[2]);
-    }
-    catch (std::invalid_argument &)
-    {
-        std::cout << "Invalid cycle_delay argument\n"
-                  << emulator_usage << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    try
-    {
-        window_scale = std::stoi(argv[3]);
-    }
-    catch (std::invalid_argument &)
-    {
-        std::cout << "Invalid window_scale argument\n"
-                  << emulator_usage << std::endl;
-        return EXIT_FAILURE;
-    }
-
-    for (int i{4}; i < argc; i++)
-    {
-        std::string arg{argv[i]};
-        if (arg == "--cosmac")
-        {
-            chip8.cosmac = true;
-        }
-        if (arg == "--amiga")
-        {
-            chip8.amiga = true;
-        }
+    default:
+        break;
     }
 
     if (!initialize_SDL(&window, &renderer, window_scale))

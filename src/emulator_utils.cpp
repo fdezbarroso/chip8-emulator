@@ -5,6 +5,67 @@
 
 #include "instructions.hpp"
 
+int parse_arguments(Chip8 &chip8, int argc, char *argv[], std::string &rom_location, std::uint32_t &cycle_frecuency, std::uint32_t &window_scale)
+{
+    std::string emulator_usage{"Usage: /path/to/chip8.exe /path/to/rom<string> cycle_delay<int> window_scale<int> --cosmac(optional) --amiga(optional)"};
+
+    for (int i{1}; i < argc; i++)
+    {
+        std::string arg{argv[i]};
+        if (arg == "--help" || arg == "-h")
+        {
+            std::cout << "A simple CHIP-8 emulator\n"
+                      << emulator_usage << std::endl;
+            return 1;
+        }
+    }
+
+    if (argc < 4)
+    {
+        std::cerr << "Not enough arguments\n"
+                  << emulator_usage << std::endl;
+        return -1;
+    }
+
+    rom_location = argv[1];
+
+    try
+    {
+        cycle_frecuency = std::stoi(argv[2]);
+    }
+    catch (std::invalid_argument &)
+    {
+        std::cerr << "Invalid cycle_delay argument\n"
+                  << emulator_usage << std::endl;
+        return -1;
+    }
+
+    try
+    {
+        window_scale = std::stoi(argv[3]);
+    }
+    catch (std::invalid_argument &)
+    {
+        std::cerr << "Invalid window_scale argument\n"
+                  << emulator_usage << std::endl;
+        return -1;
+    }
+
+    for (int i{4}; i < argc; i++)
+    {
+        std::string arg{argv[i]};
+        if (arg == "--cosmac")
+        {
+            chip8.cosmac = true;
+        }
+        if (arg == "--amiga")
+        {
+            chip8.amiga = true;
+        }
+    }
+    return 0;
+}
+
 void load_font(Chip8 &chip8)
 {
     for (std::uint32_t i{FONT_ADDRESS}; i <= 0x09F; i++)
