@@ -14,7 +14,7 @@ int parse_arguments(Chip8 &chip8, int argc, char *argv[], std::string &rom_locat
         std::string arg{argv[i]};
         if (arg == "--help" || arg == "-h")
         {
-            std::cout << "A simple CHIP-8 emulator\n"
+            std::cout << "A simple CHIP-8 emulator.\n"
                       << emulator_usage << std::endl;
             return 1;
         }
@@ -22,7 +22,7 @@ int parse_arguments(Chip8 &chip8, int argc, char *argv[], std::string &rom_locat
 
     if (argc < 4)
     {
-        std::cerr << "Not enough arguments\n"
+        std::cerr << "Not enough arguments.\n"
                   << emulator_usage << std::endl;
         return -1;
     }
@@ -35,7 +35,7 @@ int parse_arguments(Chip8 &chip8, int argc, char *argv[], std::string &rom_locat
     }
     catch (std::invalid_argument &)
     {
-        std::cerr << "Invalid cycle_delay argument\n"
+        std::cerr << "Invalid cycle_delay argument.\n"
                   << emulator_usage << std::endl;
         return -1;
     }
@@ -46,7 +46,7 @@ int parse_arguments(Chip8 &chip8, int argc, char *argv[], std::string &rom_locat
     }
     catch (std::invalid_argument &)
     {
-        std::cerr << "Invalid window_scale argument\n"
+        std::cerr << "Invalid window_scale argument.\n"
                   << emulator_usage << std::endl;
         return -1;
     }
