@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iostream>
 #include <string>
+#include <thread>
 
 #include "emulator_utils.hpp"
 #include "sdl_utils.hpp"
@@ -97,8 +98,17 @@ int main(int argc, char *argv[])
             }
             if (chip8.sound_timer)
             {
-                // TODO: Play beep
+                if (!chip8.is_beeping)
+                {
+                    chip8.is_beeping = true;
+                    std::thread beep_thread(play_beep, std::ref(chip8.is_beeping));
+                    beep_thread.detach();
+                }
                 chip8.sound_timer--;
+            }
+            else
+            {
+                chip8.is_beeping = false;
             }
         }
     }

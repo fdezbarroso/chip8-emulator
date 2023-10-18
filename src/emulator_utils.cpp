@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <windows.h>
 
 #include "instructions.hpp"
 
@@ -418,4 +419,13 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
         return false;
     }
     return true;
+}
+
+void play_beep(std::atomic<bool> &is_beeping)
+{
+    while (is_beeping)
+    {
+        Beep(800, 50);
+        is_beeping = false;
+    }
 }

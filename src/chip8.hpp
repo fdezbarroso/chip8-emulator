@@ -1,6 +1,8 @@
 #ifndef CHIP8_HPP
 #define CHIP8_HPP
 
+#include <atomic>
+
 #include "chip8_constants.hpp"
 #include "limited_stack.hpp"
 
@@ -32,6 +34,8 @@ struct Chip8
     int wait_key_pressed{-1};
     // Used to signal the need of rendering the screen
     bool render{false};
+    // Signals current beeping status
+    std::atomic<bool> is_beeping{false};
 };
 
 #endif
