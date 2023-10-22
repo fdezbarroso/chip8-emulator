@@ -17,7 +17,4 @@ bool load_ROM(Chip8 &chip8, const std::string &rom_path);
 // Decodes the opcode's intruction and calls the corresponding execution function
 bool execute(Chip8 &chip8, const std::uint16_t &opcode);
 
-// Plays a beep sound
-void play_beep(std::atomic<bool> &is_beeping);
-
 #endif

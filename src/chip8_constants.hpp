@@ -11,6 +11,9 @@ const std::uint32_t TIMER_FRECUENCY{60};
 const std::uint32_t WINDOW_WIDTH{64};
 const std::uint32_t WINDOW_HEIGHT{32};
 
+const int BEEP_AMPLITDUDE{28000};
+const int BEEP_SAMPLE_RATE{44100};
+
 const std::array<uint8_t, 80> FONT{
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
     0x20, 0x60, 0x20, 0x20, 0x70, // 1

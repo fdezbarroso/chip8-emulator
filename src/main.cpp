@@ -1,7 +1,6 @@
 #include <chrono>
 #include <iostream>
 #include <string>
-#include <thread>
 
 #include "emulator_utils.hpp"
 #include "sdl_utils.hpp"
@@ -15,6 +14,9 @@ int main(int argc, char *argv[])
     SDL_Window *window{nullptr};
     SDL_Renderer *renderer{nullptr};
     std::uint32_t window_scale{};
+
+    SDL_AudioDeviceID audio_device{};
+    bool playing{false};
 
     switch (parse_arguments(chip8, argc, argv, rom_location, cycle_frecuency, window_scale))
     {
@@ -31,7 +33,7 @@ int main(int argc, char *argv[])
         break;
     }
 
-    if (!initialize_SDL(&window, &renderer, window_scale))
+    if (!initialize_SDL(chip8, &window, &renderer, window_scale, &audio_device))
     {
         std::cerr << "Fatal error, execution aborted." << std::endl;
         return EXIT_FAILURE;
@@ -87,6 +89,7 @@ int main(int argc, char *argv[])
         }
 
         // Update timers if needed
+        current_time = std::chrono::high_resolution_clock::now();
         std::chrono::microseconds time_since_last_timer{std::chrono::duration_cast<std::chrono::microseconds>(current_time - last_timer_time)};
         if (time_since_last_timer >= min_timer_interval)
         {
@@ -98,22 +101,22 @@ int main(int argc, char *argv[])
             }
             if (chip8.sound_timer)
             {
-                if (!chip8.is_beeping)
+                if (!playing)
                 {
-                    chip8.is_beeping = true;
-                    std::thread beep_thread(play_beep, std::ref(chip8.is_beeping));
-                    beep_thread.detach();
+                    SDL_PauseAudioDevice(audio_device, 0);
+                    playing = true;
                 }
                 chip8.sound_timer--;
             }
             else
             {
-                chip8.is_beeping = false;
+                SDL_PauseAudioDevice(audio_device, 1);
+                playing = false;
             }
         }
     }
 
-    clean_SDL(&window, &renderer);
+    clean_SDL(&window, &renderer, &audio_device);
 
     std::cout << "Emulator terminated." << std::endl;
 

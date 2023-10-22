@@ -1,12 +1,13 @@
 #include "sdl_utils.hpp"
 
+#include <cmath>
 #include <iostream>
 
 #include "chip8_constants.hpp"
 
-bool initialize_SDL(SDL_Window **window, SDL_Renderer **renderer, const std::uint32_t &window_scale)
+bool initialize_SDL(Chip8 &chip8, SDL_Window **window, SDL_Renderer **renderer, const std::uint32_t &window_scale, SDL_AudioDeviceID *audio_device)
 {
-    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
     {
         std::cerr << "SDL could not initialize. SDL_Error: " << SDL_GetError() << std::endl;
         return false;
@@ -31,11 +32,26 @@ bool initialize_SDL(SDL_Window **window, SDL_Renderer **renderer, const std::uin
     SDL_SetRenderDrawColor(*renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(*renderer);
 
+    SDL_AudioSpec spec{};
+    spec.freq = BEEP_SAMPLE_RATE;
+    spec.format = AUDIO_S16SYS;
+    spec.channels = 1;
+    spec.samples = 2048;
+    spec.callback = audio_callback;
+
+    *audio_device = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
+    if (*audio_device == 0)
+    {
+        SDL_Log("Failed to open audio: %s", SDL_GetError());
+        return EXIT_FAILURE;
+    }
+
     return true;
 }
 
-void clean_SDL(SDL_Window **window, SDL_Renderer **renderer)
+void clean_SDL(SDL_Window **window, SDL_Renderer **renderer, SDL_AudioDeviceID *audio_device)
 {
+    SDL_CloseAudioDevice(*audio_device);
     SDL_DestroyRenderer(*renderer);
     SDL_DestroyWindow(*window);
     SDL_Quit();
@@ -65,6 +81,19 @@ void render_display(Chip8 &chip8, SDL_Renderer **renderer, const std::uint32_t &
     }
 
     SDL_RenderPresent(*renderer);
+}
+
+void audio_callback(void *, Uint8 *raw_buffer, int bytes)
+{
+    Sint16 *buffer = (Sint16 *)raw_buffer;
+    int length = bytes / 2; // 2 bytes per sample for AUDIO_S16SYS
+    static Uint32 phase = 0;
+
+    for (int i = 0; i < length; i++, phase++)
+    {
+        double time = (double)phase / (double)BEEP_SAMPLE_RATE;
+        buffer[i] = (Sint16)(BEEP_AMPLITDUDE * sin(2.0f * M_PI * 440.0f * time)); // render 440 HZ sine wave
+    }
 }
 
 bool handle_input(Chip8 &chip8, const SDL_Event &e)
