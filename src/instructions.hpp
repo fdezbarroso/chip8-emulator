@@ -4,7 +4,6 @@
 #include "chip8.hpp"
 
 // INSTRUCTIONS
-// TODO: modify to actual CHIP-8 names
 void op_00E0(Chip8 &chip8);
 void op_00EE(Chip8 &chip8);
 void op_1NNN(Chip8 &chip8, const std::uint16_t &opcode);

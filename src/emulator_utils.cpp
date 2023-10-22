@@ -131,42 +131,35 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
         switch (n4)
         {
         case 0x0:
-            std::cout << "CLS" << std::endl;
             op_00E0(chip8);
             break;
 
         case 0xE:
-            std::cout << "RET" << std::endl;
             op_00EE(chip8);
             break;
 
         default:
-            std::cerr << "Invalid instruction. Opcode: " << std::hex << opcode << std::endl;
             return false;
         }
         break;
 
     // 1NNN
     case 0x1:
-        std::cout << "JP addr" << std::endl;
         op_1NNN(chip8, opcode);
         break;
 
     // 2NNN
     case 0x2:
-        std::cout << "CALL addr" << std::endl;
         op_2NNN(chip8, opcode);
         break;
 
     // 3XNN
     case 0x3:
-        std::cout << "SE Vx, byte" << std::endl;
         op_3XNN(chip8, opcode, n2);
         break;
 
     // 4XNN
     case 0x4:
-        std::cout << "SNE Vx, byte" << std::endl;
         op_4XNN(chip8, opcode, n2);
         break;
 
@@ -178,19 +171,16 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
             return false;
         }
 
-        std::cout << "SE Vx, Vy" << std::endl;
         op_5XY0(chip8, n2, n3);
         break;
 
     // 6XNN
     case 0x6:
-        std::cout << "LD Vx, byte" << std::endl;
         op_6XNN(chip8, opcode, n2);
         break;
 
     // 7XNN
     case 0x7:
-        std::cout << "ADD Vx, byte" << std::endl;
         op_7XNN(chip8, opcode, n2);
         break;
 
@@ -199,47 +189,38 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
         switch (n4)
         {
         case 0x0:
-            std::cout << "LD Vx, Vy" << std::endl;
             op_8XY0(chip8, n2, n3);
             break;
 
         case 0x1:
-            std::cout << "OR Vx, Vy" << std::endl;
             op_8XY1(chip8, n2, n3);
             break;
 
         case 0x2:
-            std::cout << "AND Vx, Vy" << std::endl;
             op_8XY2(chip8, n2, n3);
             break;
 
         case 0x3:
-            std::cout << "XOR Vx, Vy" << std::endl;
             op_8XY3(chip8, n2, n3);
             break;
 
         case 0x4:
-            std::cout << "ADD Vx, Vy" << std::endl;
             op_8XY4(chip8, n2, n3);
             break;
 
         case 0x5:
-            std::cout << "SUB Vx, Vy" << std::endl;
             op_8XY5(chip8, n2, n3);
             break;
 
         case 0x6:
-            std::cout << "SHR Vx {, Vy}" << std::endl;
             op_8XY6(chip8, n2, n3);
             break;
 
         case 0x7:
-            std::cout << "SUBN Vx, Vy" << std::endl;
             op_8XY7(chip8, n2, n3);
             break;
 
         case 0xE:
-            std::cout << "SHL Vx {, Vy}" << std::endl;
             op_8XYE(chip8, n2, n3);
             break;
 
@@ -257,31 +238,26 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
             return false;
         }
 
-        std::cout << "SNE Vx, Vy" << std::endl;
         op_9XY0(chip8, n2, n3);
         break;
 
     // ANNN
     case 0xA:
-        std::cout << "LD I, addr" << std::endl;
         op_ANNN(chip8, opcode);
         break;
 
     // BNNN / BXNN
     case 0xB:
-        std::cout << "JP V0, addr" << std::endl;
         op_BNNN(chip8, opcode, n2);
         break;
 
     // CXNN
     case 0xC:
-        std::cout << "RND Vx, byte" << std::endl;
         op_CXNN(chip8, opcode, n2);
         break;
 
     // DXYN
     case 0xD:
-        std::cout << "DRW Vx, Vy, nibble" << std::endl;
         op_DXYN(chip8, opcode, n2, n3);
         break;
 
@@ -296,7 +272,6 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
                 return false;
             }
 
-            std::cout << "SKP Vx" << std::endl;
             op_EX9E(chip8, n2);
             break;
 
@@ -307,7 +282,6 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
                 return false;
             }
 
-            std::cout << "SKNP Vx" << std::endl;
             op_EXA1(chip8, n2);
             break;
 
@@ -325,12 +299,10 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
             switch (n4)
             {
             case 0x7:
-                std::cout << "LD Vx, DT" << std::endl;
                 op_FX07(chip8, n2);
                 break;
 
             case 0xA:
-                std::cout << "LD Vx, K" << std::endl;
                 op_FX0A(chip8, n2);
                 break;
 
@@ -344,17 +316,14 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
             switch (n4)
             {
             case 0x5:
-                std::cout << "LD DT, Vx" << std::endl;
                 op_FX15(chip8, n2);
                 break;
 
             case 0x8:
-                std::cout << "LD ST, Vx" << std::endl;
                 op_FX18(chip8, n2);
                 break;
 
             case 0xE:
-                std::cout << "ADD I, Vx" << std::endl;
                 op_FX1E(chip8, n2);
                 break;
 
@@ -371,7 +340,6 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
                 return false;
             }
 
-            std::cout << "LD F, Vx" << std::endl;
             op_FX29(chip8, n2);
             break;
 
@@ -382,7 +350,6 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
                 return false;
             }
 
-            std::cout << "LD B, Vx" << std::endl;
             op_FX33(chip8, n2);
             break;
 
@@ -393,7 +360,6 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
                 return false;
             }
 
-            std::cout << "LD [I], Vx" << std::endl;
             op_FX55(chip8, n2);
             break;
 
@@ -404,7 +370,6 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
                 return false;
             }
 
-            std::cout << "LD Vx, [I]" << std::endl;
             op_FX65(chip8, n2);
             break;
 
@@ -419,13 +384,4 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
         return false;
     }
     return true;
-}
-
-void play_beep(std::atomic<bool> &is_beeping)
-{
-    while (is_beeping)
-    {
-        Beep(800, 50);
-        is_beeping = false;
-    }
 }
