@@ -8,7 +8,7 @@
 
 int parse_arguments(Chip8 &chip8, int argc, char *argv[], std::string &rom_location, std::uint32_t &cycle_frecuency, std::uint32_t &window_scale)
 {
-    std::string emulator_usage{"Usage: /path/to/chip8.exe /path/to/rom<string> cycle_delay<int> window_scale<int> --cosmac(optional) --amiga(optional)"};
+    std::string emulator_usage{"Usage: /path/to/chip8.exe /path/to/rom<string> cycle_delay<int> window_scale<int> --cosmac(optional) --amiga(optional) --mute(optional)"};
 
     for (int i{1}; i < argc; i++)
     {
@@ -62,6 +62,10 @@ int parse_arguments(Chip8 &chip8, int argc, char *argv[], std::string &rom_locat
         if (arg == "--amiga")
         {
             chip8.amiga = true;
+        }
+        if (arg == "--mute")
+        {
+            chip8.mute = true;
         }
     }
     return 0;

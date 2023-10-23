@@ -28,6 +28,8 @@ struct Chip8
     bool cosmac{false};
     // Use Amiga opcode interpretations
     bool amiga{false};
+    // Mute all sound
+    bool mute{false};
 
     // CHIP-8 flags
     // Used to detect key release in opcode FX0A
@@ -35,7 +37,7 @@ struct Chip8
     // Used to signal the need of rendering the screen
     bool render{false};
     // Used to store the precomputed sine values used for sound
-    std::array<Sint16, BEEP_SAMPLE_RATE> sine_table;
+    std::array<Sint16, BEEP_SAMPLE_RATE> sine_table{};
 };
 
 #endif

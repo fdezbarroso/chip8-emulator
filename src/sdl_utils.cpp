@@ -34,7 +34,7 @@ bool initialize_SDL(Chip8 &chip8, SDL_Window **window, SDL_Renderer **renderer, 
     // Precompute sine values
     for (Uint32 phase = 0; phase < BEEP_SAMPLE_RATE; phase++)
     {
-        double time = (double)phase / (double)BEEP_SAMPLE_RATE;
+        double time{(double)phase / (double)BEEP_SAMPLE_RATE};
         chip8.sine_table.at(phase) = (Sint16)(BEEP_AMPLITDUDE * sin(2.0f * M_PI * 440.0f * time));
     }
 
@@ -94,8 +94,8 @@ void audio_callback(void *userdata, Uint8 *stream, int len)
 {
     Chip8 *chip8 = (Chip8 *)userdata;
     Sint16 *buffer = (Sint16 *)stream;
-    int length = len / 2;
-    static Uint32 phase = 0;
+    int length{len / 2};
+    static Uint32 phase{0};
 
     for (int i = 0; i < length; i++, phase++)
     {
