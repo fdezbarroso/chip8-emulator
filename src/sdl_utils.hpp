@@ -1,8 +1,6 @@
 #ifndef SDL_UTILS_HPP
 #define SDL_UTILS_HPP
 
-#include <SDL2/SDL.h>
-
 #include "chip8.hpp"
 
 // Initializes SDL, creates the emulator window, and sets up the audio device

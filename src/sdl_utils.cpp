@@ -2,8 +2,7 @@
 
 #include <cmath>
 #include <iostream>
-
-#include "chip8_constants.hpp"
+#include <vector>
 
 bool initialize_SDL(Chip8 &chip8, SDL_Window **window, SDL_Renderer **renderer, const std::uint32_t &window_scale, SDL_AudioDeviceID *audio_device)
 {
@@ -32,12 +31,20 @@ bool initialize_SDL(Chip8 &chip8, SDL_Window **window, SDL_Renderer **renderer, 
     SDL_SetRenderDrawColor(*renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(*renderer);
 
+    // Precompute sine values
+    for (Uint32 phase = 0; phase < BEEP_SAMPLE_RATE; phase++)
+    {
+        double time = (double)phase / (double)BEEP_SAMPLE_RATE;
+        chip8.sine_table.at(phase) = (Sint16)(BEEP_AMPLITDUDE * sin(2.0f * M_PI * 440.0f * time));
+    }
+
     SDL_AudioSpec spec{};
     spec.freq = BEEP_SAMPLE_RATE;
     spec.format = AUDIO_S16SYS;
     spec.channels = 1;
     spec.samples = 2048;
     spec.callback = audio_callback;
+    spec.userdata = &chip8;
 
     *audio_device = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
     if (*audio_device == 0)
@@ -83,16 +90,17 @@ void render_display(Chip8 &chip8, SDL_Renderer **renderer, const std::uint32_t &
     SDL_RenderPresent(*renderer);
 }
 
-void audio_callback(void *, Uint8 *raw_buffer, int bytes)
+void audio_callback(void *userdata, Uint8 *stream, int len)
 {
-    Sint16 *buffer = (Sint16 *)raw_buffer;
-    int length = bytes / 2; // 2 bytes per sample for AUDIO_S16SYS
+    Chip8 *chip8 = (Chip8 *)userdata;
+    Sint16 *buffer = (Sint16 *)stream;
+    int length = len / 2;
     static Uint32 phase = 0;
 
     for (int i = 0; i < length; i++, phase++)
     {
-        double time = (double)phase / (double)BEEP_SAMPLE_RATE;
-        buffer[i] = (Sint16)(BEEP_AMPLITDUDE * sin(2.0f * M_PI * 440.0f * time)); // render 440 HZ sine wave
+        phase %= BEEP_SAMPLE_RATE;
+        buffer[i] = chip8->sine_table[phase];
     }
 }
 
