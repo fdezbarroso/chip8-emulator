@@ -187,9 +187,9 @@ void op_CXNN(Chip8 &chip8, const std::uint16_t &opcode, const std::uint8_t &n2)
 
 void op_DXYN(Chip8 &chip8, const std::uint16_t &opcode, const std::uint8_t &n2, const std::uint8_t &n3)
 {
-    std::uint8_t x_ini{static_cast<std::uint8_t>(chip8.registers.at(n2) % WINDOW_WIDTH)};
-    std::uint8_t y_ini{static_cast<std::uint8_t>(chip8.registers.at(n3) % WINDOW_HEIGHT)};
-    std::uint8_t height{static_cast<std::uint8_t>(opcode & 0x000F)};
+    const std::uint8_t x_ini{static_cast<std::uint8_t>(chip8.registers.at(n2) % WINDOW_WIDTH)};
+    const std::uint8_t y_ini{static_cast<std::uint8_t>(chip8.registers.at(n3) % WINDOW_HEIGHT)};
+    const std::uint8_t height{static_cast<std::uint8_t>(opcode & 0x000F)};
 
     // VF set to 0 if no pixels are turned off
     chip8.registers.at(0xF) = 0x0;
@@ -202,7 +202,7 @@ void op_DXYN(Chip8 &chip8, const std::uint16_t &opcode, const std::uint8_t &n2, 
         for (std::uint32_t x{0}; x < 8; x++)
         {
             std::uint8_t sprite_bit{static_cast<std::uint8_t>((sprite_data >> (7 - x)) & 0x1)};
-            std::uint32_t display_index{(x_ini + x) % WINDOW_WIDTH + ((y_ini + y) % WINDOW_HEIGHT) * WINDOW_WIDTH};
+            std::uint32_t display_index{((x_ini + x) % WINDOW_WIDTH) + ((y_ini + y) % WINDOW_HEIGHT) * WINDOW_WIDTH};
 
             if (sprite_bit)
             {
@@ -245,7 +245,7 @@ void op_FX0A(Chip8 &chip8, const std::uint8_t &n2)
     {
         if (chip8.keys.at(chip8.wait_key_pressed) == 0x0)
         {
-            chip8.registers.at(chip8.wait_key_pressed) = chip8.wait_key_pressed;
+            chip8.registers.at(n2) = chip8.wait_key_pressed;
             chip8.wait_key_pressed = -1;
             return;
         }
@@ -282,14 +282,19 @@ void op_FX18(Chip8 &chip8, const std::uint8_t &n2)
 
 void op_FX1E(Chip8 &chip8, const std::uint8_t &n2)
 {
-    chip8.index_register += chip8.registers.at(n2);
+    std::uint16_t sum{static_cast<std::uint16_t>(chip8.index_register + chip8.registers.at(n2))};
 
-    if (chip8.amiga)
+    if (sum > 0x0FFF)
     {
-        if (chip8.index_register > 0x0FFF)
+        chip8.index_register = 0x0FFF;
+        if (chip8.amiga)
         {
             chip8.registers.at(0xF) = 0x1;
         }
+    }
+    else
+    {
+        chip8.index_register = sum;
     }
 }
 
@@ -317,6 +322,19 @@ void op_FX55(Chip8 &chip8, const std::uint8_t &n2)
     {
         chip8.memory.at(chip8.index_register + i) = chip8.registers.at(i);
     }
+
+    if (chip8.cosmac)
+    {
+        std::uint16_t sum{static_cast<std::uint16_t>(chip8.index_register + n2 + 1)};
+        if (sum > 0x0FFF)
+        {
+            chip8.index_register = 0x0FFF;
+        }
+        else
+        {
+            chip8.index_register = sum;
+        }
+    }
 }
 
 void op_FX65(Chip8 &chip8, const std::uint8_t &n2)
@@ -324,5 +342,18 @@ void op_FX65(Chip8 &chip8, const std::uint8_t &n2)
     for (std::uint8_t i{0}; i <= n2; i++)
     {
         chip8.registers.at(i) = chip8.memory.at(chip8.index_register + i);
+    }
+
+    if (chip8.cosmac)
+    {
+        std::uint16_t sum{static_cast<std::uint16_t>(chip8.index_register + n2 + 1)};
+        if (sum > 0x0FFF)
+        {
+            chip8.index_register = 0x0FFF;
+        }
+        else
+        {
+            chip8.index_register = sum;
+        }
     }
 }
