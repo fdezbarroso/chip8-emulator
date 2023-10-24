@@ -16,7 +16,7 @@ int main(int argc, char *argv[])
     std::uint32_t window_scale{};
 
     SDL_AudioDeviceID audio_device{};
-    bool playing{false};
+    bool sound_playing{false};
 
     switch (parse_arguments(chip8, argc, argv, rom_location, cycle_frecuency, window_scale))
     {
@@ -55,8 +55,8 @@ int main(int argc, char *argv[])
 
     std::chrono::high_resolution_clock::time_point last_cycle_time{std::chrono::high_resolution_clock::now()};
     std::chrono::high_resolution_clock::time_point last_timer_time{std::chrono::high_resolution_clock::now()};
-    std::chrono::microseconds min_cycle_interval{100000 / cycle_frecuency};
-    std::chrono::microseconds min_timer_interval{100000 / TIMER_FRECUENCY};
+    std::chrono::microseconds min_cycle_interval{1000000 / cycle_frecuency};
+    std::chrono::microseconds min_timer_interval{1000000 / TIMER_FRECUENCY};
 
     while (!quit)
     {
@@ -101,24 +101,22 @@ int main(int argc, char *argv[])
             }
             if (chip8.sound_timer)
             {
-                if (!playing)
+                if (!sound_playing)
                 {
                     SDL_PauseAudioDevice(audio_device, 0);
-                    playing = true;
+                    sound_playing = true;
                 }
                 chip8.sound_timer--;
             }
-            else if (playing)
+            else if (sound_playing)
             {
                 SDL_PauseAudioDevice(audio_device, 1);
-                playing = false;
+                sound_playing = false;
             }
         }
     }
 
     clean_SDL(&window, &renderer, &audio_device);
-
-    std::cout << "Emulator terminated." << std::endl;
 
     return EXIT_SUCCESS;
 }
