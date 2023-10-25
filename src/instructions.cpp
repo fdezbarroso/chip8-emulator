@@ -206,7 +206,7 @@ void op_DXYN(Chip8 &chip8, const std::uint16_t &opcode, const std::uint8_t &n2, 
 
             if (sprite_bit)
             {
-                if (!chip8.registers.at(0xF) && chip8.display.at(display_index) == 0xFFFFFFFF)
+                if (chip8.registers.at(0xF) != 0x1 && chip8.display.at(display_index) == 0xFFFFFFFF)
                 {
                     // VF set to 1 if any pixels are turned off
                     chip8.registers.at(0xF) = 0x1;

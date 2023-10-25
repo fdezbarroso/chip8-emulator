@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
             }
             if (chip8.sound_timer)
             {
-                if (!sound_playing)
+                if (!chip8.mute && !sound_playing)
                 {
                     SDL_PauseAudioDevice(audio_device, 0);
                     sound_playing = true;
