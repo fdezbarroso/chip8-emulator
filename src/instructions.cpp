@@ -70,16 +70,31 @@ void op_8XY0(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
 void op_8XY1(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
 {
     chip8.registers.at(n2) |= chip8.registers.at(n3);
+
+    if (chip8.cosmac)
+    {
+        chip8.registers.at(0xF) = 0x0;
+    }
 }
 
 void op_8XY2(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
 {
     chip8.registers.at(n2) &= chip8.registers.at(n3);
+
+    if (chip8.cosmac)
+    {
+        chip8.registers.at(0xF) = 0x0;
+    }
 }
 
 void op_8XY3(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
 {
     chip8.registers.at(n2) ^= chip8.registers.at(n3);
+
+    if (chip8.cosmac)
+    {
+        chip8.registers.at(0xF) = 0x0;
+    }
 }
 
 void op_8XY4(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
