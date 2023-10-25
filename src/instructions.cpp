@@ -85,6 +85,9 @@ void op_8XY3(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
 void op_8XY4(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
 {
     std::uint16_t sum{static_cast<std::uint16_t>(chip8.registers.at(n2) + chip8.registers.at(n3))};
+
+    chip8.registers.at(n2) = static_cast<std::uint8_t>(sum & 0xFF);
+
     if (sum > 0xFF)
     {
         chip8.registers.at(0xF) = 0x1;
@@ -93,13 +96,15 @@ void op_8XY4(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
     {
         chip8.registers.at(0xF) = 0x0;
     }
-
-    chip8.registers.at(n2) = static_cast<std::uint8_t>(sum & 0xFF);
 }
 
 void op_8XY5(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
 {
-    if (chip8.registers.at(n2) > chip8.registers.at(n3))
+    std::uint8_t v_x{chip8.registers.at(n2)}, v_y{chip8.registers.at(n3)};
+
+    chip8.registers.at(n2) = v_x - v_y;
+
+    if (v_x > v_y)
     {
         chip8.registers.at(0xF) = 0x1;
     }
@@ -107,8 +112,6 @@ void op_8XY5(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
     {
         chip8.registers.at(0xF) = 0x0;
     }
-
-    chip8.registers.at(n2) = chip8.registers.at(n2) - chip8.registers.at(n3);
 }
 
 void op_8XY6(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
@@ -118,14 +121,18 @@ void op_8XY6(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
         chip8.registers.at(n2) = chip8.registers.at(n3);
     }
 
-    chip8.registers.at(0xF) = chip8.registers.at(n2) & 0x1;
-
+    std::uint8_t v_x{chip8.registers.at(n2)};
     chip8.registers.at(n2) >>= 0x1;
+    chip8.registers.at(0xF) = v_x & 0x1;
 }
 
 void op_8XY7(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
 {
-    if (chip8.registers.at(n3) > chip8.registers.at(n2))
+    std::uint8_t v_x{chip8.registers.at(n2)}, v_y{chip8.registers.at(n3)};
+
+    chip8.registers.at(n2) = v_y - v_x;
+
+    if (v_y > v_x)
     {
         chip8.registers.at(0xF) = 0x1;
     }
@@ -133,8 +140,6 @@ void op_8XY7(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
     {
         chip8.registers.at(0xF) = 0x0;
     }
-
-    chip8.registers.at(n2) = chip8.registers.at(n3) - chip8.registers.at(n2);
 }
 
 void op_8XYE(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
@@ -144,9 +149,10 @@ void op_8XYE(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
         chip8.registers.at(n2) = chip8.registers.at(n3);
     }
 
-    chip8.registers.at(0xF) = (chip8.registers.at(n2) & 0x80) >> 0x7;
+    std::uint8_t v_x{chip8.registers.at(n2)};
 
     chip8.registers.at(n2) <<= 0x1;
+    chip8.registers.at(0xF) = (v_x & 0x80) >> 0x7;
 }
 
 void op_9XY0(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
