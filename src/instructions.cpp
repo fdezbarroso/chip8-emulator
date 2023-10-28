@@ -241,7 +241,7 @@ void op_DXYN(Chip8 &chip8, const std::uint16_t &opcode, const std::uint8_t &n2, 
 
 void op_EX9E(Chip8 &chip8, const std::uint8_t &n2)
 {
-    if (chip8.keys.at(chip8.registers.at(n2)) == 0x1)
+    if (chip8.keys.at(chip8.registers.at(n2) & 0x0F) == 0x1)
     {
         chip8.pc += 2;
     }
@@ -249,7 +249,7 @@ void op_EX9E(Chip8 &chip8, const std::uint8_t &n2)
 
 void op_EXA1(Chip8 &chip8, const std::uint8_t &n2)
 {
-    if (chip8.keys.at(chip8.registers.at(n2)) == 0x0)
+    if (chip8.keys.at(chip8.registers.at(n2) & 0x0F) == 0x0)
     {
         chip8.pc += 2;
     }
@@ -321,7 +321,7 @@ void op_FX1E(Chip8 &chip8, const std::uint8_t &n2)
 
 void op_FX29(Chip8 &chip8, const std::uint8_t &n2)
 {
-    chip8.index_register = FONT_ADDRESS + (chip8.registers.at(n2) * 0x5);
+    chip8.index_register = FONT_ADDRESS + ((chip8.registers.at(n2) & 0x0F) * 0x5);
 }
 
 void op_FX33(Chip8 &chip8, const std::uint8_t &n2)
