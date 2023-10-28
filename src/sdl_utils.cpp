@@ -117,22 +117,22 @@ bool handle_input(Chip8 &chip8, const SDL_Event &e)
         {
         // 1 -> 1
         case SDL_SCANCODE_1:
-            chip8.keys.at(0x0) = 0x1;
+            chip8.keys.at(0x1) = 0x1;
             break;
 
         // 2 -> 2
         case SDL_SCANCODE_2:
-            chip8.keys.at(0x1) = 0x1;
+            chip8.keys.at(0x2) = 0x1;
             break;
 
         // 3 -> 3
         case SDL_SCANCODE_3:
-            chip8.keys.at(0x2) = 0x1;
+            chip8.keys.at(0x3) = 0x1;
             break;
 
         // 4 -> C
         case SDL_SCANCODE_4:
-            chip8.keys.at(0x3) = 0x1;
+            chip8.keys.at(0xC) = 0x1;
             break;
 
         // Q -> 4
@@ -152,42 +152,42 @@ bool handle_input(Chip8 &chip8, const SDL_Event &e)
 
         // R -> D
         case SDL_SCANCODE_R:
-            chip8.keys.at(0x7) = 0x1;
+            chip8.keys.at(0xD) = 0x1;
             break;
 
         // A -> 7
         case SDL_SCANCODE_A:
-            chip8.keys.at(0x8) = 0x1;
+            chip8.keys.at(0x7) = 0x1;
             break;
 
         // S -> 8
         case SDL_SCANCODE_S:
-            chip8.keys.at(0x9) = 0x1;
+            chip8.keys.at(0x8) = 0x1;
             break;
 
         // D -> 9
         case SDL_SCANCODE_D:
-            chip8.keys.at(0xA) = 0x1;
+            chip8.keys.at(0x9) = 0x1;
             break;
 
         // F -> E
         case SDL_SCANCODE_F:
-            chip8.keys.at(0xB) = 0x1;
+            chip8.keys.at(0xE) = 0x1;
             break;
 
         // Z -> A
         case SDL_SCANCODE_Z:
-            chip8.keys.at(0xC) = 0x1;
+            chip8.keys.at(0xA) = 0x1;
             break;
 
         // X -> 0
         case SDL_SCANCODE_X:
-            chip8.keys.at(0xD) = 0x1;
+            chip8.keys.at(0x0) = 0x1;
             break;
 
         // C -> B
         case SDL_SCANCODE_C:
-            chip8.keys.at(0xE) = 0x1;
+            chip8.keys.at(0xB) = 0x1;
             break;
 
         // V -> F
@@ -205,22 +205,22 @@ bool handle_input(Chip8 &chip8, const SDL_Event &e)
         {
         // 1 -> 1
         case SDL_SCANCODE_1:
-            chip8.keys.at(0x0) = 0x0;
+            chip8.keys.at(0x1) = 0x0;
             break;
 
         // 2 -> 2
         case SDL_SCANCODE_2:
-            chip8.keys.at(0x1) = 0x0;
+            chip8.keys.at(0x2) = 0x0;
             break;
 
         // 3 -> 3
         case SDL_SCANCODE_3:
-            chip8.keys.at(0x2) = 0x0;
+            chip8.keys.at(0x3) = 0x0;
             break;
 
         // 4 -> C
         case SDL_SCANCODE_4:
-            chip8.keys.at(0x3) = 0x0;
+            chip8.keys.at(0xC) = 0x0;
             break;
 
         // Q -> 4
@@ -240,42 +240,42 @@ bool handle_input(Chip8 &chip8, const SDL_Event &e)
 
         // R -> D
         case SDL_SCANCODE_R:
-            chip8.keys.at(0x7) = 0x0;
+            chip8.keys.at(0xD) = 0x0;
             break;
 
         // A -> 7
         case SDL_SCANCODE_A:
-            chip8.keys.at(0x8) = 0x0;
+            chip8.keys.at(0x7) = 0x0;
             break;
 
         // S -> 8
         case SDL_SCANCODE_S:
-            chip8.keys.at(0x9) = 0x0;
+            chip8.keys.at(0x8) = 0x0;
             break;
 
         // D -> 9
         case SDL_SCANCODE_D:
-            chip8.keys.at(0xA) = 0x0;
+            chip8.keys.at(0x9) = 0x0;
             break;
 
         // F -> E
         case SDL_SCANCODE_F:
-            chip8.keys.at(0xB) = 0x0;
+            chip8.keys.at(0xE) = 0x0;
             break;
 
         // Z -> A
         case SDL_SCANCODE_Z:
-            chip8.keys.at(0xC) = 0x0;
+            chip8.keys.at(0xA) = 0x0;
             break;
 
         // X -> 0
         case SDL_SCANCODE_X:
-            chip8.keys.at(0xD) = 0x0;
+            chip8.keys.at(0x0) = 0x0;
             break;
 
         // C -> B
         case SDL_SCANCODE_C:
-            chip8.keys.at(0xE) = 0x0;
+            chip8.keys.at(0xB) = 0x0;
             break;
 
         // V -> F
