@@ -143,6 +143,7 @@ bool execute(Chip8 &chip8, const std::uint16_t &opcode)
             break;
 
         default:
+            std::cerr << "Invalid instruction. Opcode: " << std::hex << opcode << std::endl;
             return false;
         }
         break;
