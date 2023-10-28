@@ -119,7 +119,7 @@ void op_8XY5(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
 
     chip8.registers.at(n2) = v_x - v_y;
 
-    if (v_x > v_y)
+    if (v_x >= v_y)
     {
         chip8.registers.at(0xF) = 0x1;
     }
@@ -147,7 +147,7 @@ void op_8XY7(Chip8 &chip8, const std::uint8_t &n2, const std::uint8_t &n3)
 
     chip8.registers.at(n2) = v_y - v_x;
 
-    if (v_y > v_x)
+    if (v_y >= v_x)
     {
         chip8.registers.at(0xF) = 0x1;
     }
@@ -227,7 +227,7 @@ void op_DXYN(Chip8 &chip8, const std::uint16_t &opcode, const std::uint8_t &n2, 
 
             if (sprite_bit)
             {
-                if (chip8.registers.at(0xF) != 0x1 && chip8.display.at(display_index) == 0xFFFFFFFF)
+                if (chip8.registers.at(0xF) == 0x0 && chip8.display.at(display_index) == 0xFFFFFFFF)
                 {
                     // VF set to 1 if any pixels are turned off
                     chip8.registers.at(0xF) = 0x1;
