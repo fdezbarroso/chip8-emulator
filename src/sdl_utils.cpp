@@ -4,7 +4,7 @@
 #include <iostream>
 #include <vector>
 
-bool initialize_SDL(Chip8 &chip8, SDL_Window **window, SDL_Renderer **renderer, const std::uint32_t &window_scale, SDL_AudioDeviceID *audio_device)
+bool initialize_SDL(Chip8 &chip8, SDL_Window **window, SDL_Renderer **renderer, const std::uint32_t window_scale, SDL_AudioDeviceID *audio_device)
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) != 0)
     {
@@ -64,7 +64,7 @@ void clean_SDL(SDL_Window **window, SDL_Renderer **renderer, SDL_AudioDeviceID *
     SDL_Quit();
 }
 
-void render_display(Chip8 &chip8, SDL_Renderer **renderer, const std::uint32_t &window_scale)
+void render_display(const Chip8 &chip8, SDL_Renderer **renderer, const std::uint32_t window_scale)
 {
     SDL_SetRenderDrawColor(*renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(*renderer);

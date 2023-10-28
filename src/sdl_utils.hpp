@@ -4,16 +4,16 @@
 #include "chip8.hpp"
 
 // Initializes SDL, creates the emulator window, and sets up the audio device
-bool initialize_SDL(Chip8 &chip8, SDL_Window **window, SDL_Renderer **renderer, const std::uint32_t &window_scale, SDL_AudioDeviceID *audio_device);
+bool initialize_SDL(Chip8 &chip8, SDL_Window **window, SDL_Renderer **renderer, const std::uint32_t window_scale, SDL_AudioDeviceID *audio_device);
 
 // Cleans all SDL components
 void clean_SDL(SDL_Window **window, SDL_Renderer **renderer, SDL_AudioDeviceID *audio_device);
 
 // Loads the renderer with whatever is found on the chip8's display
-void render_display(Chip8 &chip8, SDL_Renderer **renderer, const std::uint32_t &window_scale);
+void render_display(const Chip8 &chip8, SDL_Renderer **renderer, const std::uint32_t window_scale);
 
 // Generates a simple beep sound using a sine wave
-void audio_callback(void *, Uint8 *raw_buffer, int bytes);
+void audio_callback(void *userdata, Uint8 *stream, int len);
 
 // Checks if an event corresponds to any of the valid inputs and processes it
 // The valid inputs are:
