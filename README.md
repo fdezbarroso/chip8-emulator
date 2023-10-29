@@ -48,32 +48,32 @@ This emulator is not perfect, and some know issues and features that could be wo
 
 #### Here are some examples of the emulator in action!
 
-| ![Tetris](/imgs/Tetris.gif) |
+| ![Tetris](/src/imgs/Tetris.gif) |
+| :-----------------------------: |
+|    *Tetris [Fran Dachille]*     |
+
+| ![Pong](/src/imgs/Pong.gif) |
 | :-------------------------: |
-|  *Tetris [Fran Dachille]*   |
+|   *Pong [Paul Vervalin]*    |
 
-| ![Pong](/imgs/Pong.gif) |
-| :---------------------: |
-| *Pong [Paul Vervalin]*  |
-
-|   ![Trip8](/imgs/Trip8.gif)    |
+| ![Trip8](/src/imgs/Trip8.gif)  |
 | :----------------------------: |
 | *Trip8 Demo [Revival Studios]* |
 
 #### And here are some test screenshots. Following the *very* useful [Timendus test suite](https://github.com/Timendus/chip8-test-suite).
 
-| ![Timendus Corax test](/imgs/corax_test.png) |
-| :------------------------------------------: |
-|       *Opcodes test [Corax, Timendus]*       |
+| ![Timendus Corax test](/src/imgs/corax_test.png) |
+| :----------------------------------------------: |
+|         *Opcodes test [Corax, Timendus]*         |
 
-| ![Timendus flags test](/imgs/flags_test.png) |
-| :------------------------------------------: |
-|            *Flag test [Timendus]*            |
+| ![Timendus flags test](/src/imgs/flags_test.png) |
+| :----------------------------------------------: |
+|              *Flag test [Timendus]*              |
+
+| ![Timendus quirks test](/src/imgs/quirks_test.png) |
+| :------------------------------------------------: |
+|              *Quirks test [Timendus]*              |
 *This test's fail is explained in the [Possible Improvements](#possible-improvements) section.*
-
-| ![Timendus quirks test](/imgs/quirks_test.png) |
-| :--------------------------------------------: |
-|            *Quirks test [Timendus]*            |
 
 ## Resources
 
