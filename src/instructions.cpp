@@ -346,15 +346,7 @@ void op_FX55(Chip8 &chip8, const std::uint8_t n2)
 
     if (chip8.cosmac)
     {
-        std::uint16_t sum{static_cast<std::uint16_t>(chip8.index_register + n2 + 1)};
-        if (sum > 0x0FFF)
-        {
-            chip8.index_register = 0x0FFF;
-        }
-        else
-        {
-            chip8.index_register = sum;
-        }
+        chip8.index_register = (chip8.index_register + n2 + 1) & 0x0FFF;
     }
 }
 
@@ -367,14 +359,6 @@ void op_FX65(Chip8 &chip8, const std::uint8_t n2)
 
     if (chip8.cosmac)
     {
-        std::uint16_t sum{static_cast<std::uint16_t>(chip8.index_register + n2 + 1)};
-        if (sum > 0x0FFF)
-        {
-            chip8.index_register = 0x0FFF;
-        }
-        else
-        {
-            chip8.index_register = sum;
-        }
+        chip8.index_register = (chip8.index_register + n2 + 1) & 0x0FFF;
     }
 }
