@@ -2,7 +2,7 @@
 CC = g++
 
 # Compiler flags
-CXXFLAGS = -Wall -Wextra -std=c++20
+CXXFLAGS = -Wall -Wextra -std=c++11
 
 # SDL include and library paths
 SDL_INCLUDE_PATH = SDL2/include
