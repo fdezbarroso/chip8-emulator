@@ -223,16 +223,21 @@ void op_DXYN(Chip8 &chip8, const std::uint16_t opcode, const std::uint8_t n2, co
         for (std::uint32_t x{0}; x < 8; x++)
         {
             std::uint8_t sprite_bit{static_cast<std::uint8_t>((sprite_data >> (7 - x)) & 0x1)};
-            std::uint32_t display_index{((x_ini + x) % WINDOW_WIDTH) + ((y_ini + y) % WINDOW_HEIGHT) * WINDOW_WIDTH};
+            std::uint32_t display_x{(x_ini + x)};
+            std::uint32_t display_y{(y_ini + y)};
 
-            if (sprite_bit)
+            if (!chip8.cosmac || (display_x < WINDOW_WIDTH && display_y < WINDOW_HEIGHT))
             {
-                if (chip8.registers.at(0xF) == 0x0 && chip8.display.at(display_index) == 0xFFFFFFFF)
+                std::uint32_t display_index{(display_x % WINDOW_WIDTH) + (display_y % WINDOW_HEIGHT) * WINDOW_WIDTH};
+                if (sprite_bit)
                 {
-                    // VF set to 1 if any pixels are turned off
-                    chip8.registers.at(0xF) = 0x1;
+                    if (chip8.registers.at(0xF) == 0x0 && chip8.display.at(display_index) == 0xFFFFFFFF)
+                    {
+                        // VF set to 1 if any pixels are turned off
+                        chip8.registers.at(0xF) = 0x1;
+                    }
+                    chip8.display.at(display_index) ^= 0xFFFFFFFF;
                 }
-                chip8.display.at(display_index) ^= 0xFFFFFFFF;
             }
         }
     }
