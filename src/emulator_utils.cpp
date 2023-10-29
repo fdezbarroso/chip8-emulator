@@ -6,7 +6,7 @@
 
 #include "instructions.hpp"
 
-int parse_arguments(Chip8 &chip8, const int argc, const char *argv[], std::string &rom_location, std::uint32_t &cycle_frecuency, std::uint32_t &window_scale)
+int parse_arguments(Chip8 &chip8, int argc, char *argv[], std::string &rom_location, std::uint32_t &cycle_frecuency, std::uint32_t &window_scale)
 {
     std::string emulator_usage{"Usage: /path/to/chip8.exe /path/to/rom<string> cycle_delay<int> window_scale<int> --cosmac(optional) --amiga(optional) --mute(optional)"};
 

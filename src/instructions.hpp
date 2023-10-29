@@ -12,7 +12,7 @@ void op_4XNN(Chip8 &chip8, const std::uint16_t opcode, const std::uint8_t n2);
 void op_5XY0(Chip8 &chip8, const std::uint8_t n2, const std::uint8_t n3);
 void op_6XNN(Chip8 &chip8, const std::uint16_t opcode, const std::uint8_t n2);
 void op_7XNN(Chip8 &chip8, const std::uint16_t opcode, const std::uint8_t n2);
-void op_8XY0(Chip8 &chip8, const std::uint8_t n2, const std::uint8_t &n3);
+void op_8XY0(Chip8 &chip8, const std::uint8_t n2, const std::uint8_t n3);
 void op_8XY1(Chip8 &chip8, const std::uint8_t n2, const std::uint8_t n3);
 void op_8XY2(Chip8 &chip8, const std::uint8_t n2, const std::uint8_t n3);
 void op_8XY3(Chip8 &chip8, const std::uint8_t n2, const std::uint8_t n3);
