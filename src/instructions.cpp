@@ -262,23 +262,23 @@ void op_FX07(Chip8 &chip8, const std::uint8_t n2)
 
 void op_FX0A(Chip8 &chip8, const std::uint8_t n2)
 {
-    if (chip8.cosmac && chip8.wait_key_pressed != -1)
+    if (chip8.cosmac && chip8.key_pressed != -1)
     {
-        if (chip8.keys.at(chip8.wait_key_pressed) == 0x0)
+        if (chip8.keys.at(chip8.key_pressed) == 0x0)
         {
-            chip8.registers.at(n2) = chip8.wait_key_pressed;
-            chip8.wait_key_pressed = -1;
+            chip8.registers.at(n2) = chip8.key_pressed;
+            chip8.key_pressed = -1;
             return;
         }
     }
 
-    for (std::uint8_t i{0}; chip8.wait_key_pressed == -1 && i < chip8.keys.size(); i++)
+    for (std::uint8_t i{0}; chip8.key_pressed == -1 && i < chip8.keys.size(); i++)
     {
         if (chip8.keys.at(i) == 0x1)
         {
             if (chip8.cosmac)
             {
-                chip8.wait_key_pressed = i;
+                chip8.key_pressed = i;
             }
             else
             {

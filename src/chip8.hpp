@@ -33,7 +33,7 @@ struct Chip8
 
     // CHIP-8 flags
     // Used to detect key release in opcode FX0A
-    int wait_key_pressed{-1};
+    int key_pressed{-1};
     // Used to signal the need of rendering the screen
     bool render{false};
     // Used to store the precomputed sine values used for sound
