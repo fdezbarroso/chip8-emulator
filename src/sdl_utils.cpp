@@ -49,8 +49,8 @@ bool initialize_SDL(Chip8 &chip8, SDL_Window **window, SDL_Renderer **renderer, 
     *audio_device = SDL_OpenAudioDevice(NULL, 0, &spec, NULL, 0);
     if (*audio_device == 0)
     {
-        SDL_Log("Failed to open audio: %s", SDL_GetError());
-        return EXIT_FAILURE;
+        std::cerr << "Audio could not be opened. SDL_Error: " << SDL_GetError() << std::endl;
+        return false;
     }
 
     return true;
