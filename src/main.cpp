@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        // Update timers if needed
+        // Handle different timing of delay and sound timers
         current_time = std::chrono::high_resolution_clock::now();
         std::chrono::microseconds time_since_last_timer{std::chrono::duration_cast<std::chrono::microseconds>(current_time - last_timer_time)};
         if (time_since_last_timer >= min_timer_interval)

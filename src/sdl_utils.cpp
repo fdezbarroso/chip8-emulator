@@ -31,7 +31,7 @@ bool initialize_SDL(Chip8 &chip8, SDL_Window **window, SDL_Renderer **renderer, 
     SDL_SetRenderDrawColor(*renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(*renderer);
 
-    // Precompute sine values
+    // Precompute sine values to accelerate sound generation
     for (Uint32 phase = 0; phase < BEEP_SAMPLE_RATE; phase++)
     {
         double time{(double)phase / (double)BEEP_SAMPLE_RATE};

@@ -113,7 +113,7 @@ bool load_ROM(Chip8 &chip8, const std::string &rom_path)
 
 bool execute(Chip8 &chip8, const std::uint16_t opcode)
 {
-    // Extract hexadecimal nibbles
+    // Extract nibbles
     std::uint8_t n1{}, n2{}, n3{}, n4{};
     n1 = opcode >> 12;
     n2 = (opcode >> 8) & 0xF;

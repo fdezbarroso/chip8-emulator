@@ -31,12 +31,12 @@ struct Chip8
     // Mute all sound
     bool mute{false};
 
-    // CHIP-8 flags
-    // Used to detect key release in opcode FX0A
+    // CHIP-8 utils
+    // Detect key release in opcode FX0A
     int key_pressed{-1};
-    // Used to signal the need of rendering the screen
+    // Signal the need of rendering the screen
     bool render{false};
-    // Used to store the precomputed sine values used for sound
+    // Store the precomputed sine values used for sound
     std::array<Sint16, BEEP_SAMPLE_RATE> sine_table{};
 };
 

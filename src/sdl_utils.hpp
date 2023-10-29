@@ -12,7 +12,7 @@ void clean_SDL(SDL_Window **window, SDL_Renderer **renderer, SDL_AudioDeviceID *
 // Loads the renderer with whatever is found on the chip8's display
 void render_display(const Chip8 &chip8, SDL_Renderer **renderer, const std::uint32_t window_scale);
 
-// Generates a simple beep sound using a sine wave
+// Generates a simple beep sound using a precomputed sine wave
 void audio_callback(void *userdata, Uint8 *stream, int len);
 
 // Checks if an event corresponds to any of the valid inputs and processes it
@@ -24,6 +24,7 @@ void audio_callback(void *userdata, Uint8 *stream, int len);
 // | Q | W | E | R | -> | 4 | 5 | 6 | D |
 // | A | S | D | F | -> | 7 | 8 | 9 | E |
 // | Z | X | C | V | -> | A | 0 | B | F |
+// This is different in code due to how the keys array is read
 bool handle_input(Chip8 &chip8, const SDL_Event &e);
 
 #endif
