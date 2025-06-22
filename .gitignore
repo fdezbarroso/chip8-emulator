@@ -16,10 +16,6 @@
 *.dylib
 *.dll
 
-# Fortran module files
-*.mod
-*.smod
-
 # Compiled Static libraries
 *.lai
 *.la
@@ -34,8 +30,18 @@
 # Editor
 .vscode/
 
-# Libraries
-SDL2/
+# CMake build files
+build/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+!CMakeLists.txt
+
+# CMake FetchContent downloads
+_deps/
 
 #ROMs
 ROMs/

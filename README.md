@@ -4,18 +4,55 @@ A simple CHIP-8 emulator written in C++ and using the SDL2 library.
 
 ## Build
 
-The included `Makefile` expects the SDL2 library to be found on the root of this repository, and for you to be on a Windows machine.
+This project uses `CMake` for cross-platform building and automatically downloads `SDL2` version `2.28.3` via FetchContent, so no manual library setup is required.
 
-More specifically, for the SDL2 library, version `2.28.3` was used, and the `.dll` is expected to be found directly on the repository's root, while the other library files should be located in a folder named `SDL2`.
-The library can be found by following this link: [SDL](https://github.com/libsdl-org/SDL/releases/tag/release-2.28.3)
+### Prerequisites
+- **CMake 3.14 or higher.**
+- **C++ compiler** supporting C++11 (GCC, Clang, or MSVC).
+- **Git** for downloading SDL2.
+- **Internet connection** for the first build only, to download dependencies (SDL2).
 
-Even though `C++ 20` is specified in the `Makefile`, `C++ 11` should be enough to compile it.
+### Building
 
-The emulator should work well on other operating systems since it doesn't use any Windows-specific features, but the `Makefile` will require some additional changes.
+1. Clone the repository through `HTTPS`:
+    ```bash
+    git clone https://github.com/fdezbarroso/chip8-emulator.git
+    cd chip8-emulator
+    ```
+    Or using `SSH`
+    ```bash
+    git clone git@github.com:fdezbarroso/chip8-emulator.git
+    cd chip8-emulator
+    ```
+2. Create a build directory and configure:
+    ```bash
+    mkdir build && cd build
+    cmake -DCMAKE_BUILD_TYPE=Release ..
+    ```
+    On Windows using MinGW:
+    ```bash
+    cmake -DCMAKE_BUILD_TYPE=Release -G "MinGW Makefiles" ..
+    ```
+3. Build the project:
+    ```bash
+    cmake --build .
+    ```
+4. The executable will be located at `build/bin/chip8.exe` (Windows) or `build/bin/chip8` (Unix).
+
+**Note**: The first build will take longer as it downloads and compiles necessary dependencies. Subsequent builds will be much faster.
+
+### Build Types
+- **Release** (default): Optimized for performance.
+- **Debug**: Includes debug symbols, slower execution.
+  ```bash
+  cmake -DCMAKE_BUILD_TYPE=Debug ..
+  ```
+
+The emulator should work on Windows, Linux and macOS without platform-specific modifications.
 
 ## Usage
 
-Once built, or downloaded, you'll be left with a `chip8.exe` file. This expects the following <ins>*ordered*</ins> command-line arguments when run:
+Once built, or downloaded, you'll be left with a `chip8.exe`/`chip8` file inside the `build/bin/` directory. This expects the following <ins>*ordered*</ins> command-line arguments when run:
 
  - **ROM file**: a string path pointing to a valid `.ch8` ROM file.
  - **Cycle delay**: an integer representing the speed at which the emulator should run, in instructions per second. For most ROMS, a cycle delay of 700 works best, but this is ROM-dependent.
@@ -30,7 +67,11 @@ It also supports the following options, which should be added after the aforemen
 
 An example command to run the emulator on the Windows 11 command line would be the following:
 ```
-.\chip8.exe .\ROMs\Tetris.ch8 700 16 --mute
+# From the build directory
+./bin/chip8.exe ../ROMs/Tetris.ch8 700 16
+
+# Or from the project root
+./build/bin/chip8.exe ./ROMs/Tetris.ch8 700 16
 ```
 **Disclaimer**: different CHIP-8 ROMs have different requirements. It's recommended to try out multiple command-line argument setups to achieve optimal results.
 
@@ -40,7 +81,7 @@ This emulator is not perfect, and some know issues and features that could be wo
 
  - **Vertical Blank Interrupt (VBI) handling**: since the SDL2 library is used, and with it a software renderer, there is no way to wait for vertical blanks when rendering to the screen, which can cause some screen tearing. This however should be barely noticeable.
  - **Input reading**: in multiple CHIP-8 emulators the input is read when a key is released, instead of when it is pressed. A simplified version of this is implemented when activating the `--cosmac` option, but it could be improved to actually read key releases of all valid keys. This would be specially useful on ROMs like Hidden by David Winter, or any other that uses multiple `Fx0A` consecutive opcodes to handle input.
- - **Build system**: the `Makefile` could be replaced by a `CMakeLists.txt` so SDL2 doesn't have to be added manually when building. This would also simplify the creation of builds for other operating systems.
+ - ~~**Build system**: the `Makefile` could be replaced by a `CMakeLists.txt` so SDL2 doesn't have to be added manually when building. This would also simplify the creation of builds for other operating systems.~~ Already done! :D
  - **User interface**: adding a user interface would simplify the usage of the emulator greatly.
  - **SUPER-CHIP** and **XO-CHIP** support.
 
