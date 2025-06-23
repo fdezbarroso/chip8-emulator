@@ -1,7 +1,9 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.16)
+
+cmake_policy(SET CMP0077 NEW)
 
 project(chip8
-    VERSION 1.0.0
+    VERSION 1.1.0
     DESCRIPTION "CHIP-8 Emulator"
     LANGUAGES CXX
 )

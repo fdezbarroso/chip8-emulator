@@ -271,7 +271,7 @@ void op_FX0A(Chip8 &chip8, const std::uint8_t n2)
     {
         if (chip8.keys.at(chip8.key_pressed) == 0x0)
         {
-            chip8.registers.at(n2) = chip8.key_pressed;
+            chip8.registers.at(n2) = static_cast<uint8_t>(chip8.key_pressed);
             chip8.key_pressed = -1;
             return;
         }

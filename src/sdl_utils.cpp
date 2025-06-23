@@ -76,7 +76,7 @@ void render_display(const Chip8 &chip8, SDL_Renderer **renderer, const std::uint
             std::uint32_t pixel_value = chip8.display.at(x + y * WINDOW_WIDTH);
 
             // Uses pixel_value for RGB as it should always be either 0x00 or 0xFF
-            SDL_SetRenderDrawColor(*renderer, pixel_value, pixel_value, pixel_value, 0xFF);
+            SDL_SetRenderDrawColor(*renderer, static_cast<uint8_t>(pixel_value), static_cast<uint8_t>(pixel_value), static_cast<uint8_t>(pixel_value), 0xFF);
 
             SDL_Rect pixel_scaled;
             pixel_scaled.x = x * window_scale;
