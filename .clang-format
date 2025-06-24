@@ -1,0 +1,27 @@
+BasedOnStyle: Google
+
+ColumnLimit: 120
+
+IndentWidth: 4
+
+BreakConstructorInitializers: AfterColon
+ConstructorInitializerIndentWidth: 4
+
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+BinPackArguments: false
+BinPackParameters: false
+
+SpacesBeforeTrailingComments: 2
+MaxEmptyLinesToKeep: 2
+
+AlignAfterOpenBracket: Align
+AlignOperands: Align
+
+BreakBeforeBraces: Allman
+
+AccessModifierOffset: -4
+
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup

@@ -24,4 +24,4 @@ public:
     }
 };
 
-#endif
+#endif  // LIMITED_STACK_HPP

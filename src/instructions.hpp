@@ -38,4 +38,4 @@ void op_FX33(Chip8 &chip8, const std::uint8_t n2);
 void op_FX55(Chip8 &chip8, const std::uint8_t n2);
 void op_FX65(Chip8 &chip8, const std::uint8_t n2);
 
-#endif
+#endif  // INSTRUCTIONS_HPP

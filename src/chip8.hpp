@@ -1,8 +1,6 @@
 #ifndef CHIP8_HPP
 #define CHIP8_HPP
 
-#include <SDL2/SDL.h>
-
 #include "chip8_constants.hpp"
 #include "limited_stack.hpp"
 
@@ -37,7 +35,7 @@ struct Chip8
     // Signal the need of rendering the screen
     bool render{false};
     // Store the precomputed sine values used for sound
-    std::array<Sint16, BEEP_SAMPLE_RATE> sine_table{};
+    std::array<int16_t, BEEP_SAMPLE_RATE> sine_table{};
 };
 
-#endif
+#endif  // CHIP8_HPP
